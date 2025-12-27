@@ -1,18 +1,47 @@
-from fastapi import FastAPI, HTTPException
+import os
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 from src.api.OzonApi import OzonApi
 from src.config.ConfigManager import ConfigManager
+from src.scripts.CreateDraft import CreateDraft
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app = FastAPI(title="Ozon Seller API Test")
+app = FastAPI()
+templates = Jinja2Templates(
+    directory=os.path.join(BASE_DIR, "ui")
+)
 
+# инициализация зависимостей
 config = ConfigManager()
 ozon_api = OzonApi(
     config.data["client_id"],
     config.data["api_key"]
 )
+create_draft = CreateDraft(ozon_api)
 
-@app.get("/clusters/russia")
-def get_clusters_russia():
-    try:
-        return ozon_api.getAllClustersRussia()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request}
+    )
+
+
+@app.get("/clusters", response_class=HTMLResponse)
+def clusters_page(request: Request):
+    return templates.TemplateResponse(
+        "clusters.html",
+        {"request": request}
+    )
+
+
+@app.get("/api/clusters")
+def get_clusters(place: str):
+    """
+    place = RUS | SNG
+    """
+    return create_draft.returnClusters(place)

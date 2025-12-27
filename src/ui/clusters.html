@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Clusters</title>
+</head>
+<body>
+
+<h3>Выберете регион кластера</h3>
+
+<select id="place" onchange="loadClusters()">
+    <option value="">-- выбрать --</option>
+    <option value="RUS">Россия</option>
+    <option value="SNG">СНГ</option>
+</select>
+
+<h3>Выберете кластер</h3>
+
+<select id="clusters"></select>
+
+<script>
+async function loadClusters() {
+    const place = document.getElementById("place").value;
+    if (!place) return;
+
+    const response = await fetch(`/api/clusters?place=${place}`);
+    const data = await response.json();
+
+    const select = document.getElementById("clusters");
+    select.innerHTML = "";
+
+    data.clusters.forEach(cluster => {
+        const option = document.createElement("option");
+        option.value = cluster.id;
+        option.text = cluster.name;
+        select.appendChild(option);
+    });
+}
+</script>
+
+</body>
+</html>
