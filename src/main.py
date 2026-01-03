@@ -5,4 +5,4 @@ from src.scripts.CreateDraft import CreateDraft
 test = ConfigManager()
 testApi = OzonApi(test.data["client_id"], test.data["api_key"])
 testDruft = CreateDraft(testApi)
-print(testDruft.returnClusters("SNG"))
+print(testDruft.returnPointsToShipSuppliesCROSSDOCK('Казань'))
