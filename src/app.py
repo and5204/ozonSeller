@@ -45,3 +45,14 @@ def get_clusters(place: str):
     place = RUS | SNG
     """
     return create_draft.returnClusters(place)
+
+@app.get("/api/warehouses")
+def get_warehouses(cluster_name: str):
+    """
+    cluster_name = selected cluster name
+    """
+    print(cluster_name)
+    a = create_draft.returnPointsToShipSuppliesCROSSDOCK(cluster_name)
+    print(a)
+    return a
+

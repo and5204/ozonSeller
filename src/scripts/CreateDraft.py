@@ -15,9 +15,20 @@ class CreateDraft:
             cluster.pop("logistic_clusters", None)
         return response
 
-    def returnPointsToShipSuppliesCROSSDOCK(self, clasterID):
-        return self.ozon_api.searchForPointsToShipSuppliesCROSSDOCK(clasterID)
-    
-    def removeResponsePointsToShip(self, response):
-        return 0;
+    def returnPointsToShipSuppliesCROSSDOCK(self, search_text: str):
+        raw_response = self.ozon_api.searchForPointsToShipSuppliesCROSSDOCK(search_text)
+        return self.formatWarehouses(raw_response)
+
+    def formatWarehouses(self, response: dict):
+        result = []
+
+        for item in response.get("search", []):
+            result.append({
+                "warehouse_id": item.get("warehouse_id"),
+                "name": item.get("name"),
+                "type": item.get("warehouse_type")
+            })
+
+        return {"warehouses": result}
+
         

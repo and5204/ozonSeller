@@ -5,38 +5,85 @@
     <title>Clusters</title>
 </head>
 <body>
-
-<h3>Выберете регион кластера</h3>
-
-<select id="place" onchange="loadClusters()">
-    <option value="">-- выбрать --</option>
-    <option value="RUS">Россия</option>
-    <option value="SNG">СНГ</option>
+<select id="place">
+    <option value="">Select region</option>
+    <option value="RUS">Russia</option>
+    <option value="SNG">SNG</option>
 </select>
 
-<h3>Выберете кластер</h3>
+<select id="clusters">
+    <option value="">Select cluster</option>
+</select>
 
-<select id="clusters"></select>
+<select id="warehouses">
+    <option value="">Points To Ship Supplies</option>
+</select>
+
 
 <script>
+/* =========================
+   1. Load clusters by region
+   ========================= */
 async function loadClusters() {
-    const place = document.getElementById("place").value;
+    const placeSelect = document.getElementById("place");
+    const place = placeSelect.value;
+
     if (!place) return;
 
     const response = await fetch(`/api/clusters?place=${place}`);
     const data = await response.json();
 
-    const select = document.getElementById("clusters");
-    select.innerHTML = "";
+    const clusterSelect = document.getElementById("clusters");
+    const warehouseSelect = document.getElementById("warehouses");
+
+    clusterSelect.innerHTML = '<option value="">Select cluster</option>';
+    warehouseSelect.innerHTML = '<option value="">Points To Ship Supplies</option>';
+
+    if (!data.clusters) return;
 
     data.clusters.forEach(cluster => {
         const option = document.createElement("option");
-        option.value = cluster.id;
+        option.value = cluster.name;     // IMPORTANT: send cluster NAME
         option.text = cluster.name;
-        select.appendChild(option);
+        clusterSelect.appendChild(option);
     });
 }
+
+/* =================================
+   2. Load warehouses by cluster name
+   ================================= */
+async function loadWarehouses() {
+    const clusterSelect = document.getElementById("clusters");
+    const clusterName = clusterSelect.value;
+
+    if (!clusterName) return;
+
+    const response = await fetch(`/api/warehouses?cluster_name=${encodeURIComponent(clusterName)}`);
+    const data = await response.json();
+
+    const warehouseSelect = document.getElementById("warehouses");
+    warehouseSelect.innerHTML = '<option value="">Points To Ship Supplies</option>';
+
+    if (!data.warehouses) return;
+
+    data.warehouses.forEach(warehouse => {
+        const option = document.createElement("option");
+        option.value = warehouse.warehouse_id;
+        option.text = `${warehouse.name} (${warehouse.type})`;
+        warehouseSelect.appendChild(option);
+    });
+}
+
+/* =========================
+   3. Event bindings
+   ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("place").addEventListener("change", loadClusters);
+    document.getElementById("clusters").addEventListener("change", loadWarehouses);
+});
 </script>
+
+
 
 </body>
 </html>
