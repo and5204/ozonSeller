@@ -43,3 +43,31 @@ class OzonApi:
                    "search": str(search)}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
+
+    def productList(self,
+            visibility="VISIBLE",
+            offer_ids=None,
+            product_ids=None,
+            last_id="",
+            limit=100): # https://docs.ozon.ru/api/seller/?__rr=4&abt_att=1&origin_referer=yandex.ru#operation/ProductAPI_GetProductList  Метод для получения списка всех товаров.
+
+        url = f"{self.base_url}/v3/product/list"
+
+        filter_data = {
+            "visibility": visibility
+        }
+
+        if offer_ids:
+            filter_data["offer_id"] = offer_ids
+
+        if product_ids:
+            filter_data["product_id"] = product_ids
+
+        payload = {
+            "filter": filter_data,
+            "last_id": last_id,
+            "limit": limit
+        }
+
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()

@@ -1,3 +1,4 @@
+from src.app import ozon_api
 
 
 class CreateDraft:
@@ -30,5 +31,8 @@ class CreateDraft:
             })
 
         return {"warehouses": result}
+
+    def returnProductList(self):
+        return ozon_api.productList()
 
         
