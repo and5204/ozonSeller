@@ -18,6 +18,9 @@
 <select id="warehouses">
     <option value="">Points To Ship Supplies</option>
 </select>
+<select id="products">
+    <option value="">Select product</option>
+</select>
 
 
 <script>
@@ -25,9 +28,7 @@
    1. Load clusters by region
    ========================= */
 async function loadClusters() {
-    const placeSelect = document.getElementById("place");
-    const place = placeSelect.value;
-
+    const place = document.getElementById("place").value;
     if (!place) return;
 
     const response = await fetch(`/api/clusters?place=${place}`);
@@ -43,7 +44,7 @@ async function loadClusters() {
 
     data.clusters.forEach(cluster => {
         const option = document.createElement("option");
-        option.value = cluster.name;     // IMPORTANT: send cluster NAME
+        option.value = cluster.name;
         option.text = cluster.name;
         clusterSelect.appendChild(option);
     });
@@ -53,12 +54,12 @@ async function loadClusters() {
    2. Load warehouses by cluster name
    ================================= */
 async function loadWarehouses() {
-    const clusterSelect = document.getElementById("clusters");
-    const clusterName = clusterSelect.value;
-
+    const clusterName = document.getElementById("clusters").value;
     if (!clusterName) return;
 
-    const response = await fetch(`/api/warehouses?cluster_name=${encodeURIComponent(clusterName)}`);
+    const response = await fetch(
+        `/api/warehouses?cluster_name=${encodeURIComponent(clusterName)}`
+    );
     const data = await response.json();
 
     const warehouseSelect = document.getElementById("warehouses");
@@ -66,22 +67,46 @@ async function loadWarehouses() {
 
     if (!data.warehouses) return;
 
-    data.warehouses.forEach(warehouse => {
+    data.warehouses.forEach(w => {
         const option = document.createElement("option");
-        option.value = warehouse.warehouse_id;
-        option.text = `${warehouse.name} (${warehouse.type})`;
+        option.value = w.warehouse_id;
+        option.text = `${w.name} (${w.warehouse_type})`;
         warehouseSelect.appendChild(option);
     });
 }
 
 /* =========================
-   3. Event bindings
+   3. Load products
+   ========================= */
+async function loadProducts() {
+    const response = await fetch("/api/products");
+    const data = await response.json();
+
+    const productSelect = document.getElementById("products");
+    productSelect.innerHTML = '<option value="">Select product</option>';
+
+    if (!data.products) return;
+
+    data.products.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.product_id;
+        option.text = `Offer: ${p.offer_id} | ID: ${p.product_id} | Qty: ${p.total}`;
+        productSelect.appendChild(option);
+    });
+}
+
+/* =========================
+   4. Event bindings
    ========================= */
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("place").addEventListener("change", loadClusters);
     document.getElementById("clusters").addEventListener("change", loadWarehouses);
+
+    // load products ON PAGE LOAD
+    loadProducts();
 });
 </script>
+
 
 
 

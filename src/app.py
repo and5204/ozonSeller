@@ -51,8 +51,10 @@ def get_warehouses(cluster_name: str):
     """
     cluster_name = selected cluster name
     """
-    print(cluster_name)
-    a = create_draft.returnPointsToShipSuppliesCROSSDOCK(cluster_name)
-    print(a)
-    return a
+    return create_draft.returnPointsToShipSuppliesCROSSDOCK(cluster_name)
 
+@app.get("/api/products")
+def get_products(visibility: str = "VISIBLE"):
+    return create_draft.returnProductListFormatted(
+        visibility=visibility
+    )

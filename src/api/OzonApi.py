@@ -28,6 +28,7 @@ class OzonApi:
         url = f"{self.base_url}/v1/cluster/list"
         payload = {"cluster_type": "CLUSTER_TYPE_CIS"}
         resp = requests.post(url, headers=self.headers, json=payload)
+        print(resp.json())
         return resp.json()
 
     def searchForPointsToShipSuppliesCROSSDOCK(self, search):  #https://docs.ozon.ru/api/seller/?__rr=3#operation/SupplyDraftAPI_DraftGetWarehouseFboList    Используйте метод, чтобы найти точки отгрузки для кросс-докинга.
@@ -35,6 +36,7 @@ class OzonApi:
         payload = {"filter_by_supply_type": ["CREATE_TYPE_CROSSDOCK"],
                    "search": str(search)}
         resp = requests.post(url, headers=self.headers, json=payload)
+        print(resp.json())
         return resp.json()
 
     def searchForPointsToShipSuppliesDIRECT(self, search):  # https://docs.ozon.ru/api/seller/?__rr=3#operation/SupplyDraftAPI_DraftGetWarehouseFboList      Используйте метод, чтобы найти точки отгрузки для прямых поставок.
@@ -69,5 +71,11 @@ class OzonApi:
             "limit": limit
         }
 
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
+    def getProductInfo(self, product_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=1&origin_referer=yandex.ru#operation/ProductAPI_GetProductInfoList получение информации о товаре, в том числе sku
+        url = f"{self.base_url}/v3/product/info/list"
+        payload = {"product_id": [str(product_id)]}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
