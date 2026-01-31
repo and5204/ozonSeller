@@ -16,95 +16,169 @@
 </select>
 
 <select id="warehouses">
-    <option value="">Points To Ship Supplies</option>
+    <option value="">Склад</option>
 </select>
+
+<select id="PointsToShipSupplies">
+    <option value="">Точки для отгрузки</option>
+</select>
+
 <select id="products">
     <option value="">Select product</option>
 </select>
 
 
 <script>
-/* =========================
-   1. Load clusters by region
-   ========================= */
+// =========================
+// Функция загрузки кластеров
+// =========================
 async function loadClusters() {
+
+    // Получаем выбранное значение из выпадающего списка "place"
     const place = document.getElementById("place").value;
+
+    // Если регион не выбран — выходим из функции
     if (!place) return;
 
+    // Отправляем GET-запрос на backend:
+    // /api/clusters?place=RUS или /api/clusters?place=SNG
     const response = await fetch(`/api/clusters?place=${place}`);
+
+    // Преобразуем HTTP-ответ в JSON-объект
     const data = await response.json();
 
+    // Получаем DOM-элемент выпадающего списка кластеров
     const clusterSelect = document.getElementById("clusters");
+
+    // Получаем DOM-элемент выпадающего списка складов
     const warehouseSelect = document.getElementById("warehouses");
 
+    // Очищаем список кластеров и добавляем placeholder
     clusterSelect.innerHTML = '<option value="">Select cluster</option>';
+
+    // Очищаем список складов (при смене региона)
     warehouseSelect.innerHTML = '<option value="">Points To Ship Supplies</option>';
 
+    // Если в ответе нет массива clusters — выходим
     if (!data.clusters) return;
 
+    // Проходимся по каждому кластеру в массиве
     data.clusters.forEach(cluster => {
+
+        // Создаём новый HTML-элемент <option>
         const option = document.createElement("option");
+
+        // Значение option — имя кластера (будет отправлено на backend)
         option.value = cluster.name;
+
+        // Текст option — имя кластера (то, что видит пользователь)
         option.text = cluster.name;
+
+        // Добавляем option в выпадающий список кластеров
         clusterSelect.appendChild(option);
     });
 }
 
-/* =================================
-   2. Load warehouses by cluster name
-   ================================= */
+/* =========================================
+   Функция загрузки складов по имени кластера
+   ========================================= */
 async function loadWarehouses() {
+
+    // Получаем выбранное имя кластера
     const clusterName = document.getElementById("clusters").value;
+
+    // Если кластер не выбран — выходим
     if (!clusterName) return;
 
+    // Отправляем запрос на backend:
+    // encodeURIComponent нужен для корректной передачи кириллицы
     const response = await fetch(
         `/api/warehouses?cluster_name=${encodeURIComponent(clusterName)}`
     );
+
+    // Преобразуем ответ сервера в JSON
     const data = await response.json();
 
+    // Получаем DOM-элемент списка складов
     const warehouseSelect = document.getElementById("warehouses");
+
+    // Очищаем список складов и добавляем placeholder
     warehouseSelect.innerHTML = '<option value="">Points To Ship Supplies</option>';
 
+    // Если в ответе нет массива warehouses — выходим
     if (!data.warehouses) return;
 
+    // Проходимся по каждому складу
     data.warehouses.forEach(w => {
+
+        // Создаём элемент <option>
         const option = document.createElement("option");
+
+        // Значение option — ID склада (warehouse_id)
         option.value = w.warehouse_id;
+
+        // Текст option — имя склада + тип склада
         option.text = `${w.name} (${w.warehouse_type})`;
+
+        // Добавляем option в список складов
         warehouseSelect.appendChild(option);
     });
 }
 
 /* =========================
-   3. Load products
+   Функция загрузки товаров
    ========================= */
 async function loadProducts() {
+
+    // Отправляем запрос на backend для получения товаров продавца
     const response = await fetch("/api/products");
+
+    // Преобразуем ответ в JSON
     const data = await response.json();
 
+    // Получаем DOM-элемент выпадающего списка товаров
     const productSelect = document.getElementById("products");
+
+    // Очищаем список товаров и добавляем placeholder
     productSelect.innerHTML = '<option value="">Select product</option>';
 
+    // Если в ответе нет массива products — выходим
     if (!data.products) return;
 
+    // Проходимся по каждому товару
     data.products.forEach(p => {
+
+        // Создаём элемент <option>
         const option = document.createElement("option");
-        option.value = p.product_id;
-        option.text = `Offer: ${p.offer_id} | ID: ${p.product_id} | Qty: ${p.total}`;
+
+        // Значение option — product_id
+        option.value = p.sku;
+
+        // Текст option — информация о товаре
+        option.text = `Offer: ${p.offer_id} | ID: ${p.product_id} | SKU: ${p.sku}`;
+
+        // Добавляем option в список товаров
         productSelect.appendChild(option);
     });
 }
 
 /* =========================
-   4. Event bindings
+   Назначение обработчиков
    ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("place").addEventListener("change", loadClusters);
-    document.getElementById("clusters").addEventListener("change", loadWarehouses);
 
-    // load products ON PAGE LOAD
+    // Когда пользователь меняет регион — загружаем кластеры
+    document.getElementById("place")
+        .addEventListener("change", loadClusters);
+
+    // Когда пользователь выбирает кластер — загружаем склады
+    document.getElementById("clusters")
+        .addEventListener("change", loadWarehouses);
+
+    // При загрузке страницы сразу загружаем список товаров
     loadProducts();
 });
+
 </script>
 
 

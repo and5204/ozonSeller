@@ -1,6 +1,8 @@
 from http.client import responses
 
 
+
+
 class CreateDraft:
     def __init__(self, ozon_api):
         self.ozon_api = ozon_api
@@ -55,9 +57,13 @@ class CreateDraft:
         # format only what UI needs
         formatted_items = []
         for item in items:
+            product_id = item.get("product_id")
+
             formatted_items.append({
-                "product_id": item.get("product_id"),
-                "offer_id": item.get("offer_id")
+                "product_id": product_id,
+                "offer_id": item.get("offer_id"),
+                "sku" : self.getSKU(product_id)
+
             })
 
         return {

@@ -58,3 +58,4 @@ def get_products(visibility: str = "VISIBLE"):
     return create_draft.returnProductListFormatted(
         visibility=visibility
     )
+
