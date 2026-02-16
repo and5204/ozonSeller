@@ -14,26 +14,48 @@ class CreateDraft:
             return self.removeResponseClaster(self.ozon_api.getAllClustersRussia())
 
     def removeResponseClaster(self, response):
+        result = []
+
+        # Проходим по всем кластерам
         for cluster in response.get("clusters", []):
-            cluster.pop("logistic_clusters", None)
-        return response
+            warehouses_result = []
+
+            # В каждом кластере есть logistic_clusters
+            for lc in cluster.get("logistic_clusters", []):
+                # В каждом logistic_cluster есть список warehouses
+                for wh in lc.get("warehouses", []):
+                    warehouses_result.append({
+                        "name": wh.get("name"),
+                        "type": wh.get("type"),
+                        "warehouse_id": wh.get("warehouse_id"),
+                    })
+
+            # Добавляем обработанный кластер в результат
+            result.append({
+                "id": cluster.get("macrolocal_cluster_id"),
+                "name": cluster.get("name"),
+                "type": cluster.get("type"),
+                "warehouses": warehouses_result
+            })
+
+        return result
 
     def returnPointsToShipSuppliesCROSSDOCK(self, search_text: str):
         raw_response = self.ozon_api.searchForPointsToShipSuppliesCROSSDOCK(search_text)
         print(raw_response)
-        return self.formatWarehouses(raw_response)
+        return self.formatPointsToShipSupplies(raw_response)
 
-    def formatWarehouses(self, response: dict):
+    def formatPointsToShipSupplies(self, response: dict):
         result = []
 
         for item in response.get("search", []):
             result.append({
-                "warehouse_id": item.get("warehouse_id"),
+                "PointsToShipSupplies_id": item.get("warehouse_id"),
                 "name": item.get("name"),
                 "type": item.get("warehouse_type")
             })
 
-        return {"warehouses": result}
+        return {"PointsToShipSupplies": result}
 
 
 
@@ -73,9 +95,9 @@ class CreateDraft:
 
     def getSKU(self, product_id):
         response = self.ozon_api.getProductInfo(product_id)
-        print(response)
+
         items = response.get("items", [])
-        print(items)
+
         for item in items:
             if "sku" in item:
                 return item["sku"]
