@@ -1,4 +1,4 @@
-from http.client import responses
+
 
 
 
@@ -39,6 +39,7 @@ class CreateDraft:
             })
 
         return result
+
 
     def returnPointsToShipSuppliesCROSSDOCK(self, search_text: str):
         raw_response = self.ozon_api.searchForPointsToShipSuppliesCROSSDOCK(search_text)
@@ -103,6 +104,20 @@ class CreateDraft:
                 return item["sku"]
 
         return None
+
+    def createDraft(self, cluster_ids, drop_off_point_warehouse_id, quantity, sku):
+        items = [
+            {
+                "quantity": quantity,
+                "sku": sku
+            }
+        ]
+        response = self.ozon_api.draftCreaterCrossdock(cluster_ids, drop_off_point_warehouse_id, items)
+        return response
+    def draftInfo(self, operation_id):
+        return self.ozon_api.draftInformation(operation_id)
+
+
 
 
 

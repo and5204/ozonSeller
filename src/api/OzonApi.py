@@ -9,12 +9,28 @@ class OzonApi:
             "Content-Type": "application/json"
         }
 
-    def draftCreater(self, cluster_ids, drop_off_point_warehouse_id, items, type): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
+    def draftCreaterCrossdock(self, cluster_ids, drop_off_point_warehouse_id, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
+        print(cluster_ids)
+        print(drop_off_point_warehouse_id)
+        print(items)
         url = f"{self.base_url}/v1/draft/create"
         payload = {"cluster_ids": cluster_ids,
                    "drop_off_point_warehouse_id": drop_off_point_warehouse_id,
                    "items": items,
-                   "type": type}
+                   "type": "CREATE_TYPE_CROSSDOCK"}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
+    def draftCreaterDirect(self, cluster_ids, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
+        url = f"{self.base_url}/v1/draft/create"
+        payload = {"cluster_ids": cluster_ids,
+                   "items": items,
+                   "type": "CREATE_TYPE_DIRECT"}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+    def draftInformation(self, operation_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=2&origin_referer=docs.ozon.ru#operation/SupplyDraftAPI_DraftCreateInfo информация о черновике по его id
+        url = f"{self.base_url}/v1/draft/create/info"
+        payload = {"operation_id": operation_id}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 

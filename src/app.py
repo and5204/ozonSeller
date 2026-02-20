@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 
 from src.api.OzonApi import OzonApi
 from src.config.ConfigManager import ConfigManager
-from src.scripts.CreateDraft import CreateDraft
+from src.scripts.CreateDraftCrossdock import CreateDraft
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = FastAPI()

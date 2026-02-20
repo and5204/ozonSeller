@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="with sku in UI but without cluster...">
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraft.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraft.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ui/clusters.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/clusters.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraft.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,7 +169,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769859667809</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="fix">
+      <option name="closed" value="true" />
+      <created>1771253103588</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1771253103588</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -218,6 +226,7 @@
     <MESSAGE value="with product list" />
     <MESSAGE value="with product list 2" />
     <MESSAGE value="with sku in UI but without cluster..." />
-    <option name="LAST_COMMIT_MESSAGE" value="with sku in UI but without cluster..." />
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
 </project>
