@@ -38,13 +38,14 @@ class OzonApi:
         url = f"{self.base_url}/v1/cluster/list"
         payload = {"cluster_type": "CLUSTER_TYPE_OZON"}
         resp = requests.post(url, headers=self.headers, json=payload)
+        print(resp.json())
         return resp.json()
 
     def getAllClustersSNG(self): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftClusterList   Информация о кластерах и их склада в снг
         url = f"{self.base_url}/v1/cluster/list"
         payload = {"cluster_type": "CLUSTER_TYPE_CIS"}
         resp = requests.post(url, headers=self.headers, json=payload)
-        print(resp.json())
+
         return resp.json()
 
     def searchForPointsToShipSuppliesCROSSDOCK(self, search):  #https://docs.ozon.ru/api/seller/?__rr=3#operation/SupplyDraftAPI_DraftGetWarehouseFboList    Используйте метод, чтобы найти точки отгрузки для кросс-докинга.
@@ -93,5 +94,14 @@ class OzonApi:
     def getProductInfo(self, product_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=1&origin_referer=yandex.ru#operation/ProductAPI_GetProductInfoList получение информации о товаре, в том числе sku
         url = f"{self.base_url}/v3/product/info/list"
         payload = {"product_id": [str(product_id)]}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
+    def getTimeslot(self, date_from, date_to, draft_id, warehouse_ids):
+        url = f"{self.base_url}/v1/draft/timeslot/info"
+        payload = {"date_from": date_from,
+                    "date_to": date_to,
+                   "draft_id": draft_id,
+                   "warehouse_ids": warehouse_ids,}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()

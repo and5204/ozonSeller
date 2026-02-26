@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="fix">
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="main methods for draft">
+      <change afterPath="$PROJECT_DIR$/src/scripts/Bot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraft.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -177,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771253103588</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="main methods for draft">
+      <option name="closed" value="true" />
+      <created>1771602049133</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1771602049133</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -227,6 +235,7 @@
     <MESSAGE value="with product list 2" />
     <MESSAGE value="with sku in UI but without cluster..." />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="main methods for draft" />
+    <option name="LAST_COMMIT_MESSAGE" value="main methods for draft" />
   </component>
 </project>

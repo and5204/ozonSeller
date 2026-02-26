@@ -1,6 +1,4 @@
-
-
-
+import time
 
 
 class CreateDraft:
@@ -32,7 +30,7 @@ class CreateDraft:
 
             # Добавляем обработанный кластер в результат
             result.append({
-                "id": cluster.get("macrolocal_cluster_id"),
+                "id": cluster.get("id"),
                 "name": cluster.get("name"),
                 "type": cluster.get("type"),
                 "warehouses": warehouses_result
@@ -113,9 +111,52 @@ class CreateDraft:
             }
         ]
         response = self.ozon_api.draftCreaterCrossdock(cluster_ids, drop_off_point_warehouse_id, items)
-        return response
+        return response.get("operation_id")
+
     def draftInfo(self, operation_id):
-        return self.ozon_api.draftInformation(operation_id)
+        response = self.ozon_api.draftInformation(operation_id)
+        status = response.get("status")
+        if status != "CALCULATION_STATUS_SUCCESS":
+            if status == "CALCULATION_STATUS_FAILED" or status == "CALCULATION_STATUS_EXPIRED":
+                return {
+            "status": status,
+            "errors": response.get("errors", []),}
+            for i in range(3):
+                if status == "CALCULATION_STATUS_IN_PROGRESS":
+                    time.sleep(30)
+                    response = self.ozon_api.draftInformation(operation_id)
+        result = {
+            "status": status,
+            "draft_id": response.get("draft_id"),
+            "errors": response.get("errors", []),
+            "cluster_id": None,
+            "cluster_name": None,
+            "warehouses": []
+        }
+
+        clusters = response.get("clusters", [])
+        if not clusters:
+            return result
+
+        # Assuming one cluster (typical case)
+        cluster = clusters[0]
+
+        result["cluster_id"] = cluster.get("cluster_id")
+        result["cluster_name"] = cluster.get("cluster_name")
+
+        warehouses = cluster.get("warehouses", [])
+
+        for wh in warehouses:
+            supply_warehouse = wh.get("supply_warehouse", {})
+            result["warehouses"].append({
+                "name": supply_warehouse.get("name"),
+                "warehouse_id": supply_warehouse.get("warehouse_id")
+            })
+
+        return result
+
+    def timeSlot(self, date_from, date_to, draft_id, warehouse_ids):
+        return self.ozon_api.getTimeslot(date_from, date_to, draft_id, warehouse_ids) #"date_from": "2019-08-24T14:15:22Z", "date_to": "2019-08-24T14:15:22Z", "draft_id": 0, "warehouse_ids": ["string"]
 
 
 
