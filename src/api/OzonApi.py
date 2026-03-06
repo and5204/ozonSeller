@@ -9,28 +9,51 @@ class OzonApi:
             "Content-Type": "application/json"
         }
 
-    def draftCreaterCrossdock(self, cluster_ids, drop_off_point_warehouse_id, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
-        print(cluster_ids)
-        print(drop_off_point_warehouse_id)
-        print(items)
-        url = f"{self.base_url}/v1/draft/create"
-        payload = {"cluster_ids": cluster_ids,
-                   "drop_off_point_warehouse_id": drop_off_point_warehouse_id,
-                   "items": items,
-                   "type": "CREATE_TYPE_CROSSDOCK"}
+    def draftCreaterCrossdock(
+            self,
+            macrolocal_cluster_id,
+            drop_off_warehouse_id,
+            drop_off_warehouse_type,
+            quantity,
+            sku
+    ):
+
+        url = f"{self.base_url}/v1/draft/crossdock/create"
+
+        payload = {
+            "cluster_info": {
+                "items": [
+                    {
+                        "quantity": quantity,
+                        "sku": sku
+                    }
+                ],
+                "macrolocal_cluster_id": macrolocal_cluster_id
+            },
+            "deletion_sku_mode": "PARTIAL",
+
+            "delivery_info": {
+                "drop_off_warehouse": {
+                    "warehouse_id": drop_off_warehouse_id,
+                    "warehouse_type": drop_off_warehouse_type
+                },
+                "type": "DROPOFF"
+            }
+        }
+
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 
-    def draftCreaterDirect(self, cluster_ids, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
-        url = f"{self.base_url}/v1/draft/create"
-        payload = {"cluster_ids": cluster_ids,
-                   "items": items,
-                   "type": "CREATE_TYPE_DIRECT"}
-        resp = requests.post(url, headers=self.headers, json=payload)
-        return resp.json()
-    def draftInformation(self, operation_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=2&origin_referer=docs.ozon.ru#operation/SupplyDraftAPI_DraftCreateInfo информация о черновике по его id
-        url = f"{self.base_url}/v1/draft/create/info"
-        payload = {"operation_id": operation_id}
+    # def draftCreaterDirect(self, cluster_ids, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
+    #     url = f"{self.base_url}/v1/draft/create"
+    #     payload = {"cluster_ids": cluster_ids,
+    #                "items": items,
+    #                "type": "CREATE_TYPE_DIRECT"}
+    #     resp = requests.post(url, headers=self.headers, json=payload)
+    #     return resp.json()
+    def draftInformation(self, draft_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=2&origin_referer=docs.ozon.ru#operation/SupplyDraftAPI_DraftCreateInfo информация о черновике по его id
+        url = f"{self.base_url}/v2/draft/create/info"
+        payload = {"draft_id": draft_id}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 
@@ -38,7 +61,6 @@ class OzonApi:
         url = f"{self.base_url}/v1/cluster/list"
         payload = {"cluster_type": "CLUSTER_TYPE_OZON"}
         resp = requests.post(url, headers=self.headers, json=payload)
-        print(resp.json())
         return resp.json()
 
     def getAllClustersSNG(self): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftClusterList   Информация о кластерах и их склада в снг
@@ -97,11 +119,32 @@ class OzonApi:
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 
-    def getTimeslot(self, date_from, date_to, draft_id, warehouse_ids):
-        url = f"{self.base_url}/v1/draft/timeslot/info"
+    def getTimeslotCrossdock(self, date_from, date_to, draft_id, macrolocal_cluster_id): #https://docs.ozon.ru/api/seller/?__rr=5&abt_att=2&origin_referer=docs.ozon.ru#operation/DraftTimeslotInfo
+        url = f"{self.base_url}/v2/draft/timeslot/info"
         payload = {"date_from": date_from,
                     "date_to": date_to,
                    "draft_id": draft_id,
-                   "warehouse_ids": warehouse_ids,}
+                   "supply_type": "CROSSDOCK",
+                   "selected_cluster_warehouses": [
+                    {
+                        "macrolocal_cluster_id": macrolocal_cluster_id,
+                    }
+                    ]}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
+
+    def getTimeslotDirect(self, date_from, date_to, draft_id, macrolocal_cluster_id, storage_warehouse_id): #https://docs.ozon.ru/api/seller/?__rr=5&abt_att=2&origin_referer=docs.ozon.ru#operation/DraftTimeslotInfo
+        url = f"{self.base_url}/v2/draft/timeslot/info"
+        payload = {"date_from": date_from,
+                    "date_to": date_to,
+                   "draft_id": draft_id,
+                   "supply_type": "DIRECT",
+                   "selected_cluster_warehouses": [
+                    {
+                        "macrolocal_cluster_id": macrolocal_cluster_id,
+                        "storage_warehouse_id" : storage_warehouse_id
+                    }
+                    ]}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
