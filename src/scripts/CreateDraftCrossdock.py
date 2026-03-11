@@ -123,9 +123,13 @@ class CreateDraft:
         return response
 
     def timeSlot(self, date_from, date_to, draft_id, macrolocal_cluster_id):
-        return self.ozon_api.getTimeslotCrossdock(date_from, date_to, draft_id, macrolocal_cluster_id) #"date_from": "2019-08-24T14:15:22Z", "date_to": "2019-08-24T14:15:22Z", "draft_id": 0, "warehouse_ids": ["string"]
+        return self.ozon_api.getTimeslotCrossdock(date_from, date_to, draft_id, macrolocal_cluster_id)
 
+    def createSupply(self, draft_id, macrolocal_cluster_id, from_in_timezone, to_in_timezone):
+        return self.ozon_api.createSupplyCrossdock(draft_id, macrolocal_cluster_id, from_in_timezone, to_in_timezone)
 
+    def supplyInformatin(self, draft_id):
+        return  self.ozon_api.supplyInfo(draft_id)
 
 
 

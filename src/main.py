@@ -10,12 +10,12 @@ testDruft = CreateDraft(testApi)
 # a = testDruft.createDraft(4002, 1020000996024000,"SORTING_CENTER", 10, 1818181172 )
 # print(a)
 #
-# b = testDruft.draftInfo(a.get("draft_id"))
-#
-#
-#
-# print(b)
-print(testDruft.timeSlot("2026-03-08", "2026-03-20", 90934981, 4002))
+b = testDruft.draftInfo(91818224)
+
+
+
+print(b)
+# print(testDruft.timeSlot("2026-03-12", "2026-03-29", 91818224, 4002))
 # print(testDruft.draftInfo("019c9a3d-3f0d-74af-89b6-610d9fff43f0"))
 # print(testDruft.timeSlot("2026-03-04T14:15:22Z", "2026-03-10T22:15:22Z", 90904021, ["1020002007530000"]))
 # print(datetime.now())

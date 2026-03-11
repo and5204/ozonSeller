@@ -148,3 +148,45 @@ class OzonApi:
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 
+    def createSupplyCrossdock(self,draft_id, macrolocal_cluster_id, from_in_timezone, to_in_timezone):
+        url = f"{self.base_url}/v2/draft/supply/create"
+        payload = {"draft_id": draft_id,
+                   "selected_cluster_warehouses": [
+                       {
+                           "macrolocal_cluster_id": macrolocal_cluster_id
+                       }
+                   ],
+                   "timeslot": [
+                       {
+                           "from_in_timezone": from_in_timezone,
+                           "to_in_timezone": to_in_timezone
+                       }
+                   ],
+                   "supply_type" : "CROSSDOCK"}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+    def createSupplyDirect(self,draft_id, macrolocal_cluster_id, storage_warehouse_id, from_in_timezone, to_in_timezone):
+        url = f"{self.base_url}/v2/draft/supply/create"
+        payload = {"draft_id": draft_id,
+                   "selected_cluster_warehouses": [
+                       {
+                           "macrolocal_cluster_id": macrolocal_cluster_id,
+                           "storage_warehouse_id" : storage_warehouse_id
+                       }
+                   ],
+                   "timeslot": [
+                       {
+                           "from_in_timezone": from_in_timezone,
+                           "to_in_timezone": to_in_timezone
+                       }
+                   ],
+                   "supply_type": "DIRECT"}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
+    def supplyInfo(self, draft_id):
+        url = f"{self.base_url}/v2/draft/supply/create/status"
+        payload = {"draft_id": draft_id}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
+
