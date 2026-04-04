@@ -1,21 +1,25 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from src.api.OzonApi import OzonApi
 from src.config.ConfigManager import ConfigManager
-from src.scripts.CreateDraftCrossdock import CreateDraft
+from src.scripts.Bot import Bot
+from src.scripts.CreateDraftCrossdock import CreateDraftCrossdock
 
 test = ConfigManager()
 testApi = OzonApi(test.data["client_id"], test.data["api_key"])
-testDruft = CreateDraft(testApi)
-# a = testDruft.createDraft(4002, 1020000996024000,"SORTING_CENTER", 10, 1818181172 )
+testDruft = CreateDraftCrossdock(testApi)
+testBot = Bot(testDruft)
+# print(testBot.makeRequestForDeliveryCrossdock(4065, 1020000996024000,  "SORTING_CENTER", 10, 1818181172))
+# print(testDruft.returnClusters("RUS"))
+# a = testDruft.createDraft(4065, 1020000996024000,"SORTING_CENTER", 10, 1818181172 )
 # print(a)
+
+# b = testDruft.draftInfo(98050721)
 #
-b = testDruft.draftInfo(91818224)
-
-
-
-print(b)
-# print(testDruft.timeSlot("2026-03-12", "2026-03-29", 91818224, 4002))
-# print(testDruft.draftInfo("019c9a3d-3f0d-74af-89b6-610d9fff43f0"))
-# print(testDruft.timeSlot("2026-03-04T14:15:22Z", "2026-03-10T22:15:22Z", 90904021, ["1020002007530000"]))
-# print(datetime.now())
+#
+#
+# print(b)
+# print(testDruft.timeSlot("2026-04-05", "2026-04-29", 98134343, 4065))
+# print(testDruft.createSupply(92184414,4065,"2026-03-13T15:00:05","2026-03-29T15:04:05"))
+# print(testDruft.supplyInformatin(92184414))
+print((datetime.now()+ timedelta(days=28)).strftime("%Y-%m-%dT%H:%M:%S"))

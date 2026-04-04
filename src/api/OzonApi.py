@@ -156,12 +156,12 @@ class OzonApi:
                            "macrolocal_cluster_id": macrolocal_cluster_id
                        }
                    ],
-                   "timeslot": [
+                   "timeslot":
                        {
                            "from_in_timezone": from_in_timezone,
                            "to_in_timezone": to_in_timezone
                        }
-                   ],
+                   ,
                    "supply_type" : "CROSSDOCK"}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
@@ -174,12 +174,12 @@ class OzonApi:
                            "storage_warehouse_id" : storage_warehouse_id
                        }
                    ],
-                   "timeslot": [
+                   "timeslot":
                        {
                            "from_in_timezone": from_in_timezone,
                            "to_in_timezone": to_in_timezone
                        }
-                   ],
+                   ,
                    "supply_type": "DIRECT"}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()

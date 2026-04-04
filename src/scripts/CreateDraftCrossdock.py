@@ -1,7 +1,7 @@
 import time
 
 
-class CreateDraft:
+class CreateDraftCrossdock:
     def __init__(self, ozon_api):
         self.ozon_api = ozon_api
 

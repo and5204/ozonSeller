@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 
 from src.api.OzonApi import OzonApi
 from src.config.ConfigManager import ConfigManager
-from src.scripts.CreateDraftCrossdock import CreateDraft
+from src.scripts.CreateDraftCrossdock import CreateDraftCrossdock
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = FastAPI()
@@ -20,7 +20,7 @@ ozon_api = OzonApi(
     config.data["client_id"],
     config.data["api_key"]
 )
-create_draft = CreateDraft(ozon_api)
+create_draft = CreateDraftCrossdock(ozon_api)
 
 
 @app.get("/", response_class=HTMLResponse)
