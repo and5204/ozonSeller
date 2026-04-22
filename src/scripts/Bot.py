@@ -89,6 +89,7 @@ class Bot:
         if (datetime.fromisoformat(currentDatetime) > datetime.fromisoformat(from_in_timezone)):
             fromTZ = currentDatetime
             return fromTZ
+        return from_in_timezone
 
 
 
