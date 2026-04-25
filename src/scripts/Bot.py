@@ -1,4 +1,4 @@
-from contextlib import nullcontext
+import time
 from datetime import datetime, timedelta
 class Bot:
     def __init__(self, draftCrossdock):
@@ -81,103 +81,164 @@ class Bot:
         }
         return descriptions.get(error_code, f"Неизвестная ошибка ({error_code})")
 
-    def checkTime(self, from_in_timezone, to_in_timezone):
-        fromTZ = None
-        currentDatetime = (datetime.now()+ timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%S")
-        if (datetime.fromisoformat(currentDatetime) > datetime.fromisoformat(to_in_timezone)):
-            return 0
-        if (datetime.fromisoformat(currentDatetime) > datetime.fromisoformat(from_in_timezone)):
-            fromTZ = currentDatetime
-            return fromTZ
-        return from_in_timezone
+    def makeRequestForDeliveryCrossdock(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type,
+                                        quantity, sku, from_in_timezone, to_in_timezone):
 
+        iteration = 0
 
+        while True:
+            iteration += 1
+            print(f"\n[LOOP] Итерация: {iteration}")
 
+            draftExist = True
 
+            if datetime.fromisoformat(
+                    (datetime.now() + timedelta(days=28)).strftime("%Y-%m-%dT%H:%M:%S")) < datetime.fromisoformat(
+                    to_in_timezone):
+                print("[EXIT] to_in_timezone > 28 дней")
+                return "timezoneTo over 28 days"
 
-    def makeRequestForDeliveryCrossdock(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type, quantity, sku, from_in_timezone, to_in_timezone):
-        if(datetime.fromisoformat((datetime.now()+ timedelta(days=28)).strftime("%Y-%m-%dT%H:%M:%S")) < datetime.fromisoformat(to_in_timezone)):
-            return "timezoneTo over 28 days"
-        draft = self.draftCrossdock.createDraft(macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type, quantity, sku)
-        # 1. Ошибочный формат ответа (с code)
-        if isinstance(draft, dict) and "code" in draft:
-            return draft  # возвращаем как есть, в том же формате
+            timeChecked = self.checkTime(from_in_timezone, to_in_timezone)
+            print(f"[TIME] from={from_in_timezone}, to={to_in_timezone}, checked={timeChecked}")
 
-        # 2. Нормальный ответ с draft_id
-        draft_id = draft.get("draft_id")
-        if draft_id is None:
-            return {
-                "error": "В ответе отсутствует draft_id",
-                "raw_response": draft
-            }
+            if timeChecked == 0:
+                print("[EXIT] Время вышло")
+                return "Time is end"
+            else:
+                from_in_timezone = timeChecked
 
-        # Присваиваем в переменную draftId (как просил пользователь)
-        draftId = draft_id  # ← здесь сохраняется draft_id
+            print("[DRAFT] Создаём черновик...")
+            draft = self.draftCrossdock.createDraft(
+                macrolocal_cluster_id,
+                drop_off_warehouse_id,
+                drop_off_warehouse_type,
+                quantity,
+                sku
+            )
 
-        # 3. Проверяем ошибки
-        errors = draft.get("errors")
-        critical_errors = []
+            print(f"[DRAFT RESPONSE] {draft}")
 
-        for err in errors:
-            error_message = err.get("error_message")
+            # Ошибочный формат ответа
+            if isinstance(draft, dict) and "code" in draft:
+                print(f"[ERROR] Draft API code: {draft.get('code')}")
 
-            # Игнорируем разрешённые ошибки
-            if error_message in ["UNSPECIFIED", "DROP_OFF_POINT_HAS_NO_TIMESLOTS"]:
-                continue
-
-            # Собираем описание ошибки
-            description = self.get_error_description(error_message)
-
-            # Собираем причины (error_reasons), если они есть
-            reasons = err.get("error_reasons")
-            reasons_text = []
-            for r in reasons:
-                reasons_text.append(f"{r} — {self.get_reason_description(r)}")
-
-            critical_errors.append({
-                "error_message": error_message,
-                "description": description,
-                "reasons": reasons_text if reasons_text else None
-            })
-
-        # 4. Результат
-        if critical_errors:
-            return {
-                "draftId": draftId,
-                "success": False,
-                "errors": critical_errors
-            }
-        while (1):
-            supply = self.draftCrossdock.createSupplyCrossdock(self, draftId, macrolocal_cluster_id, from_in_timezone, to_in_timezone)
-            # 1. Ошибочный формат ответа (с code)
-            if isinstance(supply, dict) and "code" in supply:
-                return supply  # возвращаем как есть, в том же формате
-
-            # 3. Проверяем error_reasons
-            error_reasons = supply.get("error_reasons")
-            critical_errors = []
-
-            for reason in error_reasons:
-                # Игнорируем нормальную (пустую) причину
-                if reason == "UNSPECIFIED":
+                if draft.get("code") == 429:
+                    print("[WAIT] Rate limit, ждём 5 минут...")
+                    time.sleep(300)
                     continue
 
-                description = self.get_supply_error_description(reason)
+                return draft
+
+            draft_id = draft.get("draft_id")
+
+            if draft_id is None:
+                print("[ERROR] Нет draft_id")
+                return {
+                    "error": "В ответе отсутствует draft_id",
+                    "raw_response": draft
+                }
+
+            print(f"[DRAFT] draft_id={draft_id}")
+            draftId = draft_id
+
+            errors = draft.get("errors") or []
+            print(f"[DRAFT ERRORS] {errors}")
+
+            critical_errors = []
+
+            for err in errors:
+                error_message = err.get("error_message")
+                print(f"[DRAFT ERROR] {error_message}")
+
+                if error_message in ["UNSPECIFIED", "DROP_OFF_POINT_HAS_NO_TIMESLOTS"]:
+                    continue
+
+                if error_message in ["CAN_NOT_START_CALCULATION", "UNDEFINED"]:
+                    print("[DRAFT] Нельзя использовать, пересоздаём")
+                    draftExist = False
+                    continue
+
+                description = self.get_error_description(error_message)
+
+                reasons = err.get("error_reasons") or []
+                print(f"[DRAFT ERROR REASONS] {reasons}")
+
+                reasons_text = []
+                for r in reasons:
+                    reasons_text.append(f"{r} — {self.get_reason_description(r)}")
 
                 critical_errors.append({
-                    "error_reason": reason,
-                    "description": description
+                    "error_message": error_message,
+                    "description": description,
+                    "reasons": reasons_text if reasons_text else None
                 })
 
-            # 4. Результат
             if critical_errors:
+                print(f"[EXIT] Критические ошибки: {critical_errors}")
                 return {
+                    "draftId": draftId,
                     "success": False,
                     "errors": critical_errors
                 }
-            else:
-                # Всё хорошо
-                return {
-                    "success": True
-                }
+
+            while draftExist:
+                print(f"[SUPPLY] Пытаемся создать supply (draft_id={draftId})")
+
+                supply = self.draftCrossdock.createSupplyCrossdock(
+                    draftId,
+                    macrolocal_cluster_id,
+                    from_in_timezone,
+                    to_in_timezone
+                )
+
+                print(f"[SUPPLY RESPONSE] {supply}")
+
+                if isinstance(supply, dict) and "code" in supply:
+                    print(f"[ERROR] Supply API code: {supply.get('code')}")
+                    return supply
+
+                error_reasons = supply.get("error_reasons") or []
+                print(f"[SUPPLY REASONS] {error_reasons}")
+
+                critical_errors = []
+                supplyExist = False
+
+                for reason in error_reasons:
+                    print(f"[SUPPLY REASON] {reason}")
+
+                    if reason in ["UNSPECIFIED", "ORDER_ALREADY_CREATED", "ORDER_CREATION_IN_PROGRESS"]:
+                        supplyExist = True
+                        continue
+
+                    if reason in ["TIMESLOT_NOT_AVAILABLE", "CAN_NOT_CREATE_ORDER", "UNDEFINED"]:
+                        continue
+
+                    if reason in ["DRAFT_DOES_NOT_EXIST", "DRAFT_INCORRECT_STATE", "DRAFT_IS_LOCKED"]:
+                        print("[SUPPLY] Draft больше невалиден → пересоздание")
+                        draftExist = False
+                        break
+
+                    description = self.get_supply_error_description(reason)
+
+                    critical_errors.append({
+                        "error_reason": reason,
+                        "description": description
+                    })
+
+                if critical_errors:
+                    print(f"[EXIT] Критические ошибки supply: {critical_errors}")
+                    return {
+                        "success": False,
+                        "errors": critical_errors
+                    }
+
+                elif supplyExist:
+                    print("[SUCCESS] Supply успешно создан")
+                    return {
+                        "success": True
+                    }
+
+                else:
+                    print("[WAIT] Нет таймслота, ждём 9 минут...")
+                    time.sleep(9 * 60)
 
