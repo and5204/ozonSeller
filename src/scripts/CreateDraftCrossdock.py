@@ -38,7 +38,6 @@ class CreateDraftCrossdock:
 
         return result
 
-
     def returnPointsToShipSuppliesCROSSDOCK(self, search_text: str):
         raw_response = self.ozon_api.searchForPointsToShipSuppliesCROSSDOCK(search_text)
         print(raw_response)
@@ -55,8 +54,6 @@ class CreateDraftCrossdock:
             })
 
         return {"PointsToShipSupplies": result}
-
-
 
     def returnProductListFormatted(
             self,
@@ -83,7 +80,7 @@ class CreateDraftCrossdock:
             formatted_items.append({
                 "product_id": product_id,
                 "offer_id": item.get("offer_id"),
-                "sku" : self.getSKU(product_id)
+                "sku": self.getSKU(product_id)
 
             })
 
@@ -104,7 +101,8 @@ class CreateDraftCrossdock:
         return None
 
     def createDraft(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type, quantity, sku):
-        response = self.ozon_api.draftCreaterCrossdock(macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type, quantity, sku)
+        response = self.ozon_api.draftCreaterCrossdock(macrolocal_cluster_id, drop_off_warehouse_id,
+                                                       drop_off_warehouse_type, quantity, sku)
         return response
 
     def draftInfo(self, draft_id):
@@ -113,8 +111,8 @@ class CreateDraftCrossdock:
         if status != "SUCCESS":
             if status == "FAILED":
                 return {
-            "status": status,
-            "errors": response.get("errors", []),}
+                    "status": status,
+                    "errors": response.get("errors", []), }
             for i in range(3):
                 if status == "UNSPECIFIED" or status == "IN_PROGRESS":
                     time.sleep(30)
@@ -129,8 +127,7 @@ class CreateDraftCrossdock:
         return self.ozon_api.createSupplyCrossdock(draft_id, macrolocal_cluster_id, from_in_timezone, to_in_timezone)
 
     def supplyInformatin(self, draft_id):
-        return  self.ozon_api.supplyInfo(draft_id)
+        return self.ozon_api.supplyInfo(draft_id)
 
 
 
-        

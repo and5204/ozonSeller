@@ -1,4 +1,4 @@
-import time
+import asyncio
 from datetime import datetime, timedelta
 class Bot:
     def __init__(self, draftCrossdock):
@@ -81,7 +81,17 @@ class Bot:
         }
         return descriptions.get(error_code, f"Неизвестная ошибка ({error_code})")
 
-    def makeRequestForDeliveryCrossdock(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type,
+    def checkTime(self, from_in_timezone, to_in_timezone):
+        fromTZ = None
+        currentDatetime = (datetime.now()+ timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%S")
+        if (datetime.fromisoformat(currentDatetime) > datetime.fromisoformat(to_in_timezone)):
+            return 0
+        if (datetime.fromisoformat(currentDatetime) > datetime.fromisoformat(from_in_timezone)):
+            fromTZ = currentDatetime
+            return fromTZ
+        return from_in_timezone
+
+    async def makeRequestForDeliveryCrossdock(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type,
                                         quantity, sku, from_in_timezone, to_in_timezone):
 
         iteration = 0
@@ -122,9 +132,9 @@ class Bot:
             if isinstance(draft, dict) and "code" in draft:
                 print(f"[ERROR] Draft API code: {draft.get('code')}")
 
-                if draft.get("code") == 429:
+                if draft.get("code") == 429 or draft.get("code") == 8:
                     print("[WAIT] Rate limit, ждём 5 минут...")
-                    time.sleep(300)
+                    await asyncio.sleep(180)
                     continue
 
                 return draft
@@ -150,7 +160,11 @@ class Bot:
                 error_message = err.get("error_message")
                 print(f"[DRAFT ERROR] {error_message}")
 
-                if error_message in ["UNSPECIFIED", "DROP_OFF_POINT_HAS_NO_TIMESLOTS"]:
+                if error_message in ["UNSPECIFIED"]:
+                    continue
+
+                if error_message in ["DROP_OFF_POINT_HAS_NO_TIMESLOTS"]:
+                    print("нет таймслотов")
                     continue
 
                 if error_message in ["CAN_NOT_START_CALCULATION", "UNDEFINED"]:
@@ -180,11 +194,139 @@ class Bot:
                     "success": False,
                     "errors": critical_errors
                 }
+            draftInfoExist = True
+            while draftInfoExist:
+                await asyncio.sleep(10)
+                draftInfo = self.draftCrossdock.draftInfo(draftId)
+                print(f"[DRAFT INFO] {draftInfo}")
+
+                # Проверяем, есть ли поле "code" (ошибка API)
+                if "code" in draftInfo:
+                    code = draftInfo.get("code")
+                    print(f"[DRAFT INFO] Получен code={code}")
+
+                    if code == 8:
+                        print("[DRAFT INFO] Code 8 — повторяем запрос")
+                        await asyncio.sleep(130)  # небольшая задержка перед повтором
+                        continue  # перезапускаем цикл
+
+                    # Любой другой code — критическая ошибка
+                    print(f"[DRAFT INFO] Критический code={code}")
+                    draftExist = False
+
+                # Поля "code" нет — проверяем статус
+                status = draftInfo.get("status")
+
+                if status is None:
+                    print("[DRAFT INFO] Нет ни code, ни status")
+                    draftExist = False
+
+                if status == "SUCCESS":
+                    print("[DRAFT INFO] Статус SUCCESS — выходим из цикла")
+                    draftInfoExist = False  # выходим, идём дальше
+                    break
+
+                # Любой другой статус — ошибка
+                print(f"[DRAFT INFO] Статус не SUCCESS: {status}")
+                draftExist = False
+
+            # Сюда попадём только при status == "SUCCESS"
+            print("[DRAFT INFO] Черновик успешно проверен, продолжаем...")
+
+            timeslot_retry = True
+            while timeslot_retry:
+                await asyncio.sleep(10)
+                timeslot = self.draftCrossdock.timeSlot(
+                    from_in_timezone[:10],
+                    to_in_timezone[:10],
+                    draftId,
+                    macrolocal_cluster_id
+                )
+                print(f"[TIMESLOT] Ответ: {timeslot}")
+
+                # Проверяем наличие "code"
+                if "code" in timeslot:
+                    code = timeslot.get("code")
+                    if code == 5:
+                        print("[TIMESLOT] Code 5 — черновик невалиден")
+                        draftExist = False
+                        timeslot_retry = False
+                        break
+                    elif code == 8:
+                        print("[TIMESLOT] Code 8 — ждём 130 секунд и повторяем")
+                        await asyncio.sleep(130)
+                        continue
+                    else:
+                        print(f"[TIMESLOT] Неизвестный code={code}")
+                        return {
+                            "success": False,
+                            "error": f"Ошибка API при получении таймслотов",
+                            "code": code,
+                            "raw_response": timeslot
+                        }
+
+                # Проверяем error_reason
+                error_reason = timeslot.get("error_reason")
+                if error_reason in ["INVALID_CLUSTERS_COUNT", "REQUESTED_PERIOD_MORE_THAN_MAX",
+                                    "INVALID_REQUESTED_CLUSTER_IDS", "UNDEFINED"]:
+                    print(f"[TIMESLOT] Критический error_reason: {error_reason}")
+                    draftExist = False
+                    timeslot_retry = False
+                    break
+
+                # Проверяем наличие таймслотов
+                result = timeslot.get("result", {})
+                drop_off = result.get("drop_off_warehouse_timeslots", {})
+                days = drop_off.get("days", [])
+
+                # Собираем все таймслоты
+                all_timeslots = []
+                for day in days:
+                    for ts in day.get("timeslots", []):
+                        all_timeslots.append({
+                            "from": ts.get("from_in_timezone"),
+                            "to": ts.get("to_in_timezone")
+                        })
+
+                if not all_timeslots:
+                    print("[TIMESLOT] timeslots пуст — ждём 9 минут и повторяем")
+                    await asyncio.sleep(9 * 60)
+                    continue
+
+                print(f"[TIMESLOT] Найдено таймслотов: {len(all_timeslots)}")
+
+                # Преобразуем строки в datetime для сравнения
+                from_dt = datetime.fromisoformat(from_in_timezone)
+                to_dt = datetime.fromisoformat(to_in_timezone)
+
+                # Фильтруем только подходящие таймслоты
+                suitable_timeslots = []
+                for ts in all_timeslots:
+                    ts_from = datetime.fromisoformat(ts["from"])
+                    ts_to = datetime.fromisoformat(ts["to"])
+
+                    if ts_from >= from_dt and ts_from < to_dt and ts_to <= to_dt and ts_to > from_dt:
+                        suitable_timeslots.append(ts)
+
+                if not suitable_timeslots:
+                    print("[TIMESLOT] Нет подходящего таймслота — ждём 9 минут и повторяем")
+                    await asyncio.sleep(9 * 60)
+                    continue
+
+                # Сортируем по from_in_timezone и берём первый (самый ранний)
+                suitable_timeslots.sort(key=lambda x: x["from"])
+                new_from = suitable_timeslots[0]["from"]
+                new_to = suitable_timeslots[0]["to"]
+
+                print(f"[TIMESLOT] Выбран самый ранний таймслот: {new_from} — {new_to}")
+                timeslot_retry = False
 
             while draftExist:
+
+                await asyncio.sleep(10)
                 print(f"[SUPPLY] Пытаемся создать supply (draft_id={draftId})")
 
-                supply = self.draftCrossdock.createSupplyCrossdock(
+                supply = self.draftCrossdock.createSupply(
                     draftId,
                     macrolocal_cluster_id,
                     from_in_timezone,
@@ -194,6 +336,10 @@ class Bot:
                 print(f"[SUPPLY RESPONSE] {supply}")
 
                 if isinstance(supply, dict) and "code" in supply:
+                    if supply.get("code") == 429 or supply.get("code") == 8:
+                        print("[WAIT] Rate limit, ждём 5 минут...")
+                        await asyncio.sleep(180)
+                        continue
                     print(f"[ERROR] Supply API code: {supply.get('code')}")
                     return supply
 
@@ -202,6 +348,8 @@ class Bot:
 
                 critical_errors = []
                 supplyExist = False
+                if not error_reasons: #пустой список
+                    supplyExist = True
 
                 for reason in error_reasons:
                     print(f"[SUPPLY REASON] {reason}")
@@ -209,6 +357,7 @@ class Bot:
                     if reason in ["UNSPECIFIED", "ORDER_ALREADY_CREATED", "ORDER_CREATION_IN_PROGRESS"]:
                         supplyExist = True
                         continue
+
 
                     if reason in ["TIMESLOT_NOT_AVAILABLE", "CAN_NOT_CREATE_ORDER", "UNDEFINED"]:
                         continue
@@ -233,12 +382,26 @@ class Bot:
                     }
 
                 elif supplyExist:
-                    print("[SUCCESS] Supply успешно создан")
-                    return {
-                        "success": True
-                    }
+
+                    supplyInfoExist = True
+                    while supplyInfoExist:
+                        await asyncio.sleep(10)
+                        supplyInfo = self.draftCrossdock.supplyInformatin(draftId)
+                        if isinstance(supplyInfo, dict) and "code" in supplyInfo:
+                            if supplyInfo.get("code") == 429 or supplyInfo.get("code") == 8:
+                                print("[WAIT] Rate limit, ждём 5 минут...")
+                                await asyncio.sleep(180)
+                                continue
+                            print(f"[ERROR] Supply API code: {supplyInfo.get('code')}")
+                            return supplyInfo
+                        if supplyInfo.get("status") == "SUCCESS":
+                            print("SUCCESS")
+                            return supplyInfo
+                        if supplyInfo.get("status") == "FAILED":
+                            print("FAILED")
+                            return supplyInfo
 
                 else:
-                    print("[WAIT] Нет таймслота, ждём 9 минут...")
-                    time.sleep(9 * 60)
+                    print("заново")
+
 

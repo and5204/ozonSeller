@@ -189,4 +189,3 @@ class OzonApi:
         payload = {"draft_id": draft_id}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
-

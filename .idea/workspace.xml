@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="with supply method">
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="bot without test and assinhron">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/scripts/Bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/Bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,15 +51,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Python.main.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "settings.editor.selected.configurable": "terminal"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\zahar\PycharmProjects\ozonSeller\src" />
@@ -214,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775334810991</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="bot without test and assinhron">
+      <option name="closed" value="true" />
+      <created>1777155812965</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1777155812965</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -268,6 +279,7 @@
     <MESSAGE value="with create draft, get draft info and get timezone" />
     <MESSAGE value="replacing old methods with new ones" />
     <MESSAGE value="with supply method" />
-    <option name="LAST_COMMIT_MESSAGE" value="with supply method" />
+    <MESSAGE value="bot without test and assinhron" />
+    <option name="LAST_COMMIT_MESSAGE" value="bot without test and assinhron" />
   </component>
 </project>
