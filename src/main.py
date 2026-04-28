@@ -3,9 +3,13 @@ from datetime import datetime, timedelta
 from src.api.OzonApi import OzonApi
 from src.config.ConfigManager import ConfigManager
 from src.scripts.Bot import Bot
+from src.scripts.BotDirect import BotDirect
 from src.scripts.CreateDraftCrossdock import CreateDraftCrossdock
 
 import asyncio
+
+from src.scripts.CreateDraftDirect import CreateDraftDirect
+
 
 async def main():
     test = ConfigManager()
@@ -16,31 +20,40 @@ async def main():
     )
 
     testDruft = CreateDraftCrossdock(testApi)
+    testDruftDirect = CreateDraftDirect(testApi)
+    testBotDirect = BotDirect(testDruftDirect)
+    print(await testBotDirect.makeRequestForDeliveryDirect(
+        4039,
+        15431806189000,
+        10,
+        1741556924,
+        "2026-04-28T12:00:00", "2026-05-20T18:00:00"
+    ))
     # print(testDruft.timeSlot("2026-04-28","2026-05-20", 104367917, 4041))
     testBot = Bot(testDruft)
-    task1 = asyncio.create_task(
-        testBot.makeRequestForDeliveryCrossdock(
-            4041, 23268782971000, "FULL_FILLMENT",
-            10, 1741556924,
-            "2026-04-28T12:00:00", "2026-05-20T18:00:00"
-        )
-    )
-
-    task2 = asyncio.create_task(
-        testBot.makeRequestForDeliveryCrossdock(
-            4007, 23268782971000, "FULL_FILLMENT",
-            10, 1741556924,
-            "2026-04-30T12:00:00", "2026-05-20T18:00:00"
-        )
-    )
+    # task1 = asyncio.create_task(
+    #     testBot.makeRequestForDeliveryCrossdock(
+    #         4041, 23268782971000, "FULL_FILLMENT",
+    #         10, 1741556924,
+    #         "2026-04-28T12:00:00", "2026-05-20T18:00:00"
+    #     )
+    # )
+    #
+    # task2 = asyncio.create_task(
+    #     testBot.makeRequestForDeliveryCrossdock(
+    #         4007, 23268782971000, "FULL_FILLMENT",
+    #         10, 1741556924,
+    #         "2026-04-30T12:00:00", "2026-05-20T18:00:00"
+    #     )
+    # )
 
     # Можно обрабатывать результаты по мере готовности
-    result1 = await task1
-    print(f"Результат 1: {result1}")
-
-    result2 = await task2
-    print(f"Результат 2: {result2}")
-    # draft = testDruft.createDraft(
+    # result1 = await task1
+    # print(f"Результат 1: {result1}")
+    #
+    # result2 = await task2
+    # print(f"Результат 2: {result2}")
+    # # draft = testDruft.createDraft(
     #     4007,
     #     1020001046550000,
     #     "SORTING_CENTER",

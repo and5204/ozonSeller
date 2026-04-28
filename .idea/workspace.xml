@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="bot without test and assinhron">
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="bot to crossdock work">
+      <change afterPath="$PROJECT_DIR$/src/scripts/BotDirect.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/Bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/Bot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,7 +225,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777155812965</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="bot to crossdock work">
+      <option name="closed" value="true" />
+      <created>1777325845653</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1777325845653</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -280,6 +288,7 @@
     <MESSAGE value="replacing old methods with new ones" />
     <MESSAGE value="with supply method" />
     <MESSAGE value="bot without test and assinhron" />
-    <option name="LAST_COMMIT_MESSAGE" value="bot without test and assinhron" />
+    <MESSAGE value="bot to crossdock work" />
+    <option name="LAST_COMMIT_MESSAGE" value="bot to crossdock work" />
   </component>
 </project>

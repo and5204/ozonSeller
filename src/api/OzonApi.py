@@ -44,13 +44,20 @@ class OzonApi:
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()
 
-    # def draftCreaterDirect(self, cluster_ids, items): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
-    #     url = f"{self.base_url}/v1/draft/create"
-    #     payload = {"cluster_ids": cluster_ids,
-    #                "items": items,
-    #                "type": "CREATE_TYPE_DIRECT"}
-    #     resp = requests.post(url, headers=self.headers, json=payload)
-    #     return resp.json()
+    def draftCreaterDirect(self, quantity, sku, macrolocal_cluster_id): #https://docs.ozon.ru/api/seller/?__rr=2#operation/SupplyDraftAPI_DraftCreate Создание черновика(не забывай про ограничения запросов)
+        url = f"{self.base_url}/v1/draft/direct/create"
+        payload = {"cluster_info": {
+                    "items": [
+                    {
+                        "quantity": quantity,
+                        "sku": sku
+                    }
+                            ],
+                    "macrolocal_cluster_id": macrolocal_cluster_id
+                    },
+                    "deletion_sku_mode": "PARTIAL"}
+        resp = requests.post(url, headers=self.headers, json=payload)
+        return resp.json()
     def draftInformation(self, draft_id): #https://docs.ozon.ru/api/seller/?__rr=4&abt_att=2&origin_referer=docs.ozon.ru#operation/SupplyDraftAPI_DraftCreateInfo информация о черновике по его id
         url = f"{self.base_url}/v2/draft/create/info"
         payload = {"draft_id": draft_id}
