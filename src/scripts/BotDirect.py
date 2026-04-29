@@ -106,13 +106,42 @@ class BotDirect:
 
                 info = self.draftDirect.draftInfo(draft_id)
                 print("[DRAFT INFO]", info)
-
                 if "code" in info:
                     if info["code"] == 8:
                         await asyncio.sleep(120)
                         continue
                     draftExist = False
                     break
+                invalid_timeslot_reasons = {
+                    "NOT_AVAILABLE_TIMESLOT_FOR_DROP_OFF_POINT",
+                    "NOT_AVAILABLE_TIMESLOT_FOR_STORAGE_WAREHOUSE",
+                    "NOT_AVAILABLE_TIMESLOT_FOR_BOTH_WAREHOUSES",
+                    "NOT_AVAILABLE_TIMESLOT_NO_REASON"
+                }
+
+                clusters = info.get("clusters", [])
+
+                found_invalid = False
+
+                for cluster in clusters:
+                    for wh in cluster.get("warehouses", []):
+                        availability = wh.get("availability_status", {})
+                        reason = availability.get("invalid_reason")
+
+                        if reason in invalid_timeslot_reasons:
+                            print(f"[DRAFT INFO] Нет таймслотов ({reason}) → пересоздаём draft")
+                            draftExist = False
+                            found_invalid = True
+                            await asyncio.sleep(9 * 60)
+                            break
+
+                    if found_invalid:
+                        break
+
+                if found_invalid:
+                    break
+
+
 
                 if info.get("status") == "SUCCESS":
                     break
@@ -212,13 +241,16 @@ class BotDirect:
                     if supply["code"] in [8, 429]:
                         await asyncio.sleep(180)
                         continue
+                    if supply.get("code") == 5:
+                        draftExist = False
+                        continue
                     return supply
 
                 reasons = supply.get("error_reasons") or []
 
                 if not reasons:
                     print("[SUCCESS] supply создан")
-                    return {"success": True}
+
 
                 for r in reasons:
                     if r in ["ORDER_ALREADY_CREATED", "ORDER_CREATION_IN_PROGRESS"]:
@@ -227,5 +259,40 @@ class BotDirect:
                     if r in ["DRAFT_DOES_NOT_EXIST", "DRAFT_IS_LOCKED"]:
                         draftExist = False
                         break
+                supplyInfoExist = True
+                while supplyInfoExist:
+                    await asyncio.sleep(10)
+                    supplyInfo = self.draftDirect.supplyInformatin(draft_id)
 
+                    # === обработка rate limit ===
+                    if isinstance(supplyInfo, dict) and "code" in supplyInfo:
+                        if supplyInfo.get("code") in [429, 8]:
+                            print("[WAIT] Rate limit, ждём 5 минут...")
+                            await asyncio.sleep(180)
+                            continue
+
+                        print(f"[ERROR] Supply API code: {supplyInfo.get('code')}")
+                        return supplyInfo
+
+                    status = supplyInfo.get("status")
+
+                    # === SUCCESS ===
+                    if status == "SUCCESS":
+                        print("SUCCESS")
+                        return supplyInfo
+
+                    # === FAILED ===
+                    if status == "FAILED":
+                        reasons = supplyInfo.get("error_reasons", [])
+                        print(f"[SUPPLY FAILED] reasons={reasons}")
+
+                        # 🔁 НУЖНЫЙ КЕЙС — просто выходим из цикла
+                        if "TIMESLOT_NOT_AVAILABLE" in reasons:
+                            print("[SUPPLY] Таймслот исчез → выходим из цикла, пробуем заново")
+                            supplyInfoExist = False
+                            supplyExist = False
+                            break  # <-- ключевое отличие
+
+                        # ❌ все остальные ошибки — как раньше
+                        return supplyInfo
                 print("[RETRY] пробуем снова")

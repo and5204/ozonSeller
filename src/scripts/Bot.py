@@ -200,35 +200,66 @@ class Bot:
                 draftInfo = self.draftCrossdock.draftInfo(draftId)
                 print(f"[DRAFT INFO] {draftInfo}")
 
-                # Проверяем, есть ли поле "code" (ошибка API)
+                # === Проверка code ===
                 if "code" in draftInfo:
                     code = draftInfo.get("code")
                     print(f"[DRAFT INFO] Получен code={code}")
 
                     if code == 8:
                         print("[DRAFT INFO] Code 8 — повторяем запрос")
-                        await asyncio.sleep(130)  # небольшая задержка перед повтором
-                        continue  # перезапускаем цикл
+                        await asyncio.sleep(130)
+                        continue
 
-                    # Любой другой code — критическая ошибка
                     print(f"[DRAFT INFO] Критический code={code}")
                     draftExist = False
+                    break
 
-                # Поля "code" нет — проверяем статус
+                # === НОВОЕ: проверка invalid_reason ===
+                invalid_timeslot_reasons = {
+                    "NOT_AVAILABLE_TIMESLOT_FOR_DROP_OFF_POINT",
+                    "NOT_AVAILABLE_TIMESLOT_FOR_STORAGE_WAREHOUSE",
+                    "NOT_AVAILABLE_TIMESLOT_FOR_BOTH_WAREHOUSES",
+                    "NOT_AVAILABLE_TIMESLOT_NO_REASON"
+                }
+
+                clusters = draftInfo.get("clusters", [])
+
+                found_invalid = False
+
+                for cluster in clusters:
+                    for wh in cluster.get("warehouses", []):
+                        availability = wh.get("availability_status", {})
+                        reason = availability.get("invalid_reason")
+
+                        if reason in invalid_timeslot_reasons:
+                            print(f"[DRAFT INFO] Нет таймслотов ({reason}) → пересоздаём draft")
+                            draftExist = False
+                            found_invalid = True
+                            await asyncio.sleep(9*60)
+                            break
+
+                    if found_invalid:
+                        break
+
+                if found_invalid:
+                    break
+
+                # === Проверка status ===
                 status = draftInfo.get("status")
 
                 if status is None:
                     print("[DRAFT INFO] Нет ни code, ни status")
                     draftExist = False
+                    break
 
                 if status == "SUCCESS":
                     print("[DRAFT INFO] Статус SUCCESS — выходим из цикла")
-                    draftInfoExist = False  # выходим, идём дальше
+                    draftInfoExist = False
                     break
 
-                # Любой другой статус — ошибка
                 print(f"[DRAFT INFO] Статус не SUCCESS: {status}")
                 draftExist = False
+                break
 
             # Сюда попадём только при status == "SUCCESS"
             print("[DRAFT INFO] Черновик успешно проверен, продолжаем...")
@@ -340,6 +371,9 @@ class Bot:
                         print("[WAIT] Rate limit, ждём 5 минут...")
                         await asyncio.sleep(180)
                         continue
+                    if supply.get("code") == 5:
+                        draftExist = False
+                        continue
                     print(f"[ERROR] Supply API code: {supply.get('code')}")
                     return supply
 
@@ -387,18 +421,37 @@ class Bot:
                     while supplyInfoExist:
                         await asyncio.sleep(10)
                         supplyInfo = self.draftCrossdock.supplyInformatin(draftId)
+
+                        # === обработка rate limit ===
                         if isinstance(supplyInfo, dict) and "code" in supplyInfo:
-                            if supplyInfo.get("code") == 429 or supplyInfo.get("code") == 8:
+                            if supplyInfo.get("code") in [429, 8]:
                                 print("[WAIT] Rate limit, ждём 5 минут...")
                                 await asyncio.sleep(180)
                                 continue
+
                             print(f"[ERROR] Supply API code: {supplyInfo.get('code')}")
                             return supplyInfo
-                        if supplyInfo.get("status") == "SUCCESS":
+
+                        status = supplyInfo.get("status")
+
+                        # === SUCCESS ===
+                        if status == "SUCCESS":
                             print("SUCCESS")
                             return supplyInfo
-                        if supplyInfo.get("status") == "FAILED":
-                            print("FAILED")
+
+                        # === FAILED ===
+                        if status == "FAILED":
+                            reasons = supplyInfo.get("error_reasons", [])
+                            print(f"[SUPPLY FAILED] reasons={reasons}")
+
+                            # 🔁 НУЖНЫЙ КЕЙС — просто выходим из цикла
+                            if "TIMESLOT_NOT_AVAILABLE" in reasons:
+                                print("[SUPPLY] Таймслот исчез → выходим из цикла, пробуем заново")
+                                supplyInfoExist = False
+                                supplyExist = False
+                                break  # <-- ключевое отличие
+
+                            # ❌ все остальные ошибки — как раньше
                             return supplyInfo
 
                 else:

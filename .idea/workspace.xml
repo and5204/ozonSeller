@@ -4,12 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="bot to crossdock work">
-      <change afterPath="$PROJECT_DIR$/src/scripts/BotDirect.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" afterDir="false" />
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="bot to crossdock and direct work">
+      <change afterPath="$PROJECT_DIR$/src/ui/direct.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/Bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/Bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/BotDirect.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/BotDirect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftCrossdock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/clusters.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/clusters.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +24,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -54,7 +59,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
-    "Python.main.executor": "Debug",
+    "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
     "settings.editor.selected.configurable": "terminal"
@@ -233,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777325845653</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="bot to crossdock and direct work">
+      <option name="closed" value="true" />
+      <created>1777406572366</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1777406572366</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -289,6 +302,7 @@
     <MESSAGE value="with supply method" />
     <MESSAGE value="bot without test and assinhron" />
     <MESSAGE value="bot to crossdock work" />
-    <option name="LAST_COMMIT_MESSAGE" value="bot to crossdock work" />
+    <MESSAGE value="bot to crossdock and direct work" />
+    <option name="LAST_COMMIT_MESSAGE" value="bot to crossdock and direct work" />
   </component>
 </project>

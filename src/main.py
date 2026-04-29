@@ -22,23 +22,31 @@ async def main():
     testDruft = CreateDraftCrossdock(testApi)
     testDruftDirect = CreateDraftDirect(testApi)
     testBotDirect = BotDirect(testDruftDirect)
-    print(await testBotDirect.makeRequestForDeliveryDirect(
-        4039,
-        15431806189000,
-        10,
-        1741556924,
-        "2026-04-28T12:00:00", "2026-05-20T18:00:00"
-    ))
+    print(testDruft.returnPointsToShipSuppliesCROSSDOCK("москва"))
+    # print(await testBotDirect.makeRequestForDeliveryDirect(
+    #     4039,
+    #     15431806189000,
+    #     10,
+    #     1741556924,
+    #     "2026-04-28T12:00:00", "2026-05-20T18:00:00"
+    # ))
     # print(testDruft.timeSlot("2026-04-28","2026-05-20", 104367917, 4041))
     testBot = Bot(testDruft)
     # task1 = asyncio.create_task(
-    #     testBot.makeRequestForDeliveryCrossdock(
-    #         4041, 23268782971000, "FULL_FILLMENT",
-    #         10, 1741556924,
+    #     testBotDirect.makeRequestForDeliveryDirect(
+    #         4039,
+    #         15431806189000,
+    #         10,
+    #         1741556924,
     #         "2026-04-28T12:00:00", "2026-05-20T18:00:00"
+
+        # testBot.makeRequestForDeliveryCrossdock(
+        #     4041, 23839618566000, "WAREHOUSE_TYPE_CROSS_DOCK",
+        #     10, 1741556924,
+        #     "2026-04-28T12:00:00", "2026-05-20T18:00:00"
     #     )
     # )
-    #
+
     # task2 = asyncio.create_task(
     #     testBot.makeRequestForDeliveryCrossdock(
     #         4007, 23268782971000, "FULL_FILLMENT",
@@ -72,7 +80,7 @@ async def main():
     # supply = testDruft.createSupply(104367917, 4041,"2026-04-28T00:00:00","2026-05-10T18:00:00" )
     # print(supply)
     # time.sleep(5)
-    # print(testDruft.supplyInformatin(104397528))
+    # print(testDruft.supplyInformatin(104984974))
     #
     # draft_id = draft.get("draft_id")
     #

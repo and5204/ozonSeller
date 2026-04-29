@@ -3,108 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Clusters</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input, select {
-            width: 300px;
-            padding: 6px;
-        }
-    </style>
 </head>
 <body>
+<select id="place">
+    <option value="">Select region</option>
+    <option value="RUS">Russia</option>
+    <option value="SNG">SNG</option>
+</select>
 
-<div class="form-group">
-    <label>Регион</label>
-    <select id="place">
-        <option value="">Select region</option>
-        <option value="RUS">Russia</option>
-        <option value="SNG">SNG</option>
-    </select>
-</div>
+<select id="clusters">
+    <option value="">Select cluster</option>
+</select>
 
-<div class="form-group">
-    <label>Кластер</label>
-    <select id="clusters">
-        <option value="">Select cluster</option>
-    </select>
-</div>
+<select id="warehouses">
+    <option value="">Склад</option>
+</select>
 
-<div class="form-group">
-    <label>Начальное время</label>
-    <input
-        type="text"
-        id="fromTime"
-        placeholder="2026-04-28T12:00:00"
-    >
-</div>
+<select id="PointsToShipSupplies">
+    <option value="">Точки для отгрузки</option>
+</select>
 
-<div class="form-group">
-    <label>Конечное время</label>
-    <input
-        type="text"
-        id="toTime"
-        placeholder="2026-04-28T18:00:00"
-    >
-</div>
+<select id="products">
+    <option value="">Select product</option>
+</select>
 
-<div class="form-group">
-    <label>Поиск точки отгрузки</label>
-    <input
-        type="text"
-        id="warehouseSearch"
-        placeholder="Введите название точки..."
-    >
-</div>
-
-<div class="form-group">
-    <label>Точки отгрузки</label>
-    <select id="PointsToShipSupplies">
-        <option value="">Выберите точку</option>
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Склад</label>
-    <select id="warehouses">
-        <option value="">Склад</option>
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Товар</label>
-    <select id="products">
-        <option value="">Select product</option>
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Количество товара</label>
-    <input
-        type="number"
-        id="quantity"
-        placeholder="Введите количество"
-        min="1"
-    >
-</div>
 
 <script>
 
 let clustersData = null;
 let clustersId = null;
-let time_frome = null;
-let time_to = null;
-let warehouse_id = null
-let warehouse_type = null
 // =========================
 // Функция загрузки кластеров
 // =========================

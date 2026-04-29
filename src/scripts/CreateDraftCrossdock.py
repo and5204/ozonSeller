@@ -47,10 +47,21 @@ class CreateDraftCrossdock:
         result = []
 
         for item in response.get("search", []):
+            type = item.get("warehouse_type")
+            if type == "WAREHOUSE_TYPE_DELIVERY_POINT":
+                type = "DELIVERY_POINT"
+            elif type == "WAREHOUSE_TYPE_ORDERS_RECEIVING_POINT":
+                type = "ORDERS_RECEIVING_POINT"
+            elif type == "WAREHOUSE_TYPE_SORTING_CENTER":
+                type = "SORTING_CENTER"
+            elif type == "FULL_FILLMENT":
+                type = "FULL_FILLMENT"
+            elif type == "WAREHOUSE_TYPE_CROSS_DOCK":
+                type = "CROSS_DOCK"
             result.append({
                 "PointsToShipSupplies_id": item.get("warehouse_id"),
                 "name": item.get("name"),
-                "type": item.get("warehouse_type")
+                "type": type
             })
 
         return {"PointsToShipSupplies": result}
