@@ -360,8 +360,8 @@ class Bot:
                 supply = self.draftCrossdock.createSupply(
                     draftId,
                     macrolocal_cluster_id,
-                    from_in_timezone,
-                    to_in_timezone
+                    new_from,
+                    new_to
                 )
 
                 print(f"[SUPPLY RESPONSE] {supply}")
@@ -449,6 +449,8 @@ class Bot:
                                 print("[SUPPLY] Таймслот исчез → выходим из цикла, пробуем заново")
                                 supplyInfoExist = False
                                 supplyExist = False
+                                draftExist = False
+
                                 break  # <-- ключевое отличие
 
                             # ❌ все остальные ошибки — как раньше

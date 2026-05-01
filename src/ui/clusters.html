@@ -64,6 +64,9 @@
         id="warehouseSearch"
         placeholder="Введите название точки..."
     >
+    <button onclick="">
+    искать точку отгрузки
+    </button>
 </div>
 
 <div class="form-group">
@@ -73,11 +76,7 @@
     </select>
 </div>
 
-<div class="form-group">
-    <label>Склад</label>
-    <select id="warehouses">
-        <option value="">Склад</option>
-    </select>
+
 </div>
 
 <div class="form-group">
@@ -97,199 +96,275 @@
     >
 </div>
 
+<div class="form-group">
+    <button onclick="createSupplyRequest()">
+    Создать заявку на кроссдок
+</button>
+</div>
+
+
 <script>
 
-let clustersData = null;
-let clustersId = null;
-let time_frome = null;
-let time_to = null;
-let warehouse_id = null
-let warehouse_type = null
+
 // =========================
-// Функция загрузки кластеров
+// ГЛОБАЛЬНЫЕ ДАННЫЕ
+// =========================
+let clustersData = [];      // список кластеров
+let pointsData = [];        // список точек отгрузки
+
+// Данные заявки
+let clustersId = null;
+let time_from = null;
+let time_to = null;
+let warehouse_id = null;
+let warehouse_type = null;
+let sku = null;
+let quantity = null;
+
+
+// =========================
+// ЗАГРУЗКА КЛАСТЕРОВ
 // =========================
 async function loadClusters() {
 
-    // Получаем выбранное значение из выпадающего списка "place"
     const place = document.getElementById("place").value;
-
-    // Если регион не выбран — выходим из функции
     if (!place) return;
 
-    // Отправляем GET-запрос на backend:
-    // /api/clusters?place=RUS или /api/clusters?place=SNG
-    const response = await fetch(`/api/clusters?place=${place}`);
+    console.log("[LOAD CLUSTERS] place =", place);
 
-    // Преобразуем HTTP-ответ в JSON-объект
+    const response = await fetch(`/api/clusters?place=${place}`);
     const data = await response.json();
 
     clustersData = data;
 
-    // Получаем DOM-элемент выпадающего списка кластеров
     const clusterSelect = document.getElementById("clusters");
-
-    // Получаем DOM-элемент выпадающего списка складов
-    const warehouseSelect = document.getElementById("warehouses");
-
-    // Очищаем список кластеров и добавляем placeholder
     clusterSelect.innerHTML = '<option value="">Select cluster</option>';
 
-    // Очищаем список складов (при смене региона)
-    warehouseSelect.innerHTML = '<option value="">Склад</option>';
-
-    // Если в ответе нет массива clusters — выходим
-    if (!data) return;
-
-    // Проходимся по каждому кластеру в массиве
     data.forEach(cluster => {
 
-        // Создаём новый HTML-элемент <option>
         const option = document.createElement("option");
 
-        // Значение option — имя кластера (будет отправлено на backend)
         option.value = cluster.name;
-        clustersId = cluster.id;
 
-        // Текст option — имя кластера (то, что видит пользователь)
-        option.text = cluster.name + " (" + cluster.type + " )";
+        // сохраняем ID
+        option.dataset.id = cluster.macrolocal_cluster_id;
 
-        // Добавляем option в выпадающий список кластеров
+        option.text = `${cluster.name} (${cluster.type})`;
+
         clusterSelect.appendChild(option);
     });
+
+    console.log("[CLUSTERS LOADED]", clustersData);
 }
 
-/* =========================================
-   Функция загрузки складов
-   ========================================= */
-async function loadWarehouses() {
 
-    const clusterName = document.getElementById("clusters").value;
-    if (!clusterName) return;
-
-    // Если данные кластеров ещё не загружены — выходим
-    if (!clustersData) return;
-
-    const warehouseSelect = document.getElementById("warehouses");
-    warehouseSelect.innerHTML = '<option value="">Склад</option>';
-
-    // Ищем нужный кластер по имени
-    const cluster = clustersData.find(c => c.name === clusterName);
-
-    if (!cluster) return;
-
-    // Проходим по складам этого кластера
-    if (!cluster.warehouses) return;
-
-    cluster.warehouses.forEach(wh => {
-        const option = document.createElement("option");
-        option.value = wh.name;
-        option.text = wh.name + " (" + wh.type + ")";
-        warehouseSelect.appendChild(option);
-    });
-}
-/* =========================
-   Функция выбора точек для отгрузки
-   ========================= */
+// =========================
+// ПОИСК И ЗАГРУЗКА ТОЧЕК
+// =========================
 async function loadPointsToShipSupplies() {
 
-    // Получаем выбранное значение из выпадающего списка "warehouses"
-    const cluster_name = document.getElementById("warehouses").value;
-    console.log(cluster_name)
+    const search = document.getElementById("warehouseSearch").value;
 
-    // Если регион не выбран — выходим из функции
+    if (!search) {
+        alert("Введите название точки");
+        return;
+    }
 
+    console.log("[SEARCH WAREHOUSE]", search);
 
-    // Отправляем GET-запрос на backend:
-
-    const response = await fetch(`/api/warehouses?cluster_name=${encodeURIComponent(cluster_name)}`);
-
-    // Преобразуем HTTP-ответ в JSON-объект
+    const response = await fetch(`/api/warehouses?cluster_name=${encodeURIComponent(search)}`);
     const data = await response.json();
 
-    // Получаем DOM-элемент выпадающего списка PointsToShipSupplies
-    const PointsToShipSuppliesSelect = document.getElementById("PointsToShipSupplies");
+    pointsData = data.PointsToShipSupplies;
 
+    const select = document.getElementById("PointsToShipSupplies");
+    select.innerHTML = '<option value="">Выберите точку</option>';
 
-    // Очищаем список
-    PointsToShipSuppliesSelect.innerHTML = '<option value="">Точки для отгрузки</option>';
+    pointsData.forEach(p => {
 
-
-    if (!data.PointsToShipSupplies) return;
-
-    // Проходимся по каждому кластеру в массиве
-    data.PointsToShipSupplies.forEach(pointsToShipSupplies => {
-
-        // Создаём новый HTML-элемент <option>
         const option = document.createElement("option");
 
-        // Значение option — имя кластера (будет отправлено на backend)
-        option.value = pointsToShipSupplies.name;
+        option.value = p.PointsToShipSupplies_id;
 
-        // Текст option — имя кластера (то, что видит пользователь)
-        option.text = pointsToShipSupplies.name + " (" + pointsToShipSupplies.type + " )";
+        // сохраняем тип
+        option.dataset.type = p.type;
 
-        // Добавляем option в выпадающий список кластеров
-        PointsToShipSuppliesSelect.appendChild(option);
+        option.text = `${p.name} (${p.type})`;
+
+        select.appendChild(option);
     });
+
+    console.log("[WAREHOUSES LOADED]", pointsData);
 }
 
 
-/* =========================
-   Функция загрузки товаров
-   ========================= */
+// =========================
+// ЗАГРУЗКА ТОВАРОВ
+// =========================
 async function loadProducts() {
 
-    // Отправляем запрос на backend для получения товаров продавца
-    const response = await fetch("/api/products");
+    console.log("[LOAD PRODUCTS]");
 
-    // Преобразуем ответ в JSON
+    const response = await fetch("/api/products");
     const data = await response.json();
 
-    // Получаем DOM-элемент выпадающего списка товаров
     const productSelect = document.getElementById("products");
-
-    // Очищаем список товаров и добавляем placeholder
     productSelect.innerHTML = '<option value="">Select product</option>';
 
-    // Если в ответе нет массива products — выходим
     if (!data.products) return;
 
-    // Проходимся по каждому товару
     data.products.forEach(p => {
 
-        // Создаём элемент <option>
         const option = document.createElement("option");
 
-        // Значение option — product_id
         option.value = p.sku;
+        option.text = `Offer: ${p.offer_id} | SKU: ${p.sku}`;
 
-        // Текст option — информация о товаре
-        option.text = `Offer: ${p.offer_id} | ID: ${p.product_id} | SKU: ${p.sku}`;
-
-        // Добавляем option в список товаров
         productSelect.appendChild(option);
+    });
+
+    console.log("[PRODUCTS LOADED]", data.products);
+}
+
+
+// =========================
+// СБОР ДАННЫХ ФОРМЫ
+// =========================
+function collectFormData() {
+
+    console.log("[COLLECT FORM DATA]");
+
+    // === КЛАСТЕР ===
+    const clusterSelect = document.getElementById("clusters");
+    const selectedCluster = clusterSelect.options[clusterSelect.selectedIndex];
+
+    clustersId = selectedCluster ? Number(selectedCluster.dataset.id) : null;
+
+    // === ВРЕМЯ ===
+    time_from = document.getElementById("fromTime").value;
+    time_to = document.getElementById("toTime").value;
+
+    // === ТОЧКА ОТГРУЗКИ ===
+    const warehouseSelect = document.getElementById("PointsToShipSupplies");
+    const selectedWarehouse = warehouseSelect.options[warehouseSelect.selectedIndex];
+
+    warehouse_id = selectedWarehouse ? Number(selectedWarehouse.value) : null;
+    warehouse_type = selectedWarehouse?.dataset?.type || null;
+
+    // === SKU ===
+    sku = document.getElementById("products").value;
+
+    // === КОЛИЧЕСТВО ===
+    quantity = document.getElementById("quantity").value;
+
+    console.log("[FORM DATA]", {
+        clustersId,
+        time_from,
+        time_to,
+        warehouse_id,
+        warehouse_type,
+        sku,
+        quantity
     });
 }
 
-/* =========================
-   Назначение обработчиков
-   ========================= */
+
+// =========================
+// ВАЛИДАЦИЯ
+// =========================
+function validateForm() {
+
+    if (!clustersId) return "Не выбран кластер";
+    if (!time_from) return "Не указано начальное время";
+    if (!time_to) return "Не указано конечное время";
+    if (!warehouse_id) return "Не выбрана точка отгрузки";
+    if (!sku) return "Не выбран товар";
+    if (!quantity || quantity <= 0) return "Некорректное количество";
+
+    return null;
+}
+
+
+// =========================
+// СОЗДАНИЕ ЗАЯВКИ
+// =========================
+async function createSupplyRequest() {
+
+    console.log("========== CREATE SUPPLY ==========");
+
+    collectFormData();
+
+    const error = validateForm();
+
+    if (error) {
+        console.warn("[VALIDATION ERROR]", error);
+        alert(error);
+        return;
+    }
+
+    const payload = {
+        cluster_id: clustersId,
+        warehouse_id: warehouse_id,
+        warehouse_type: warehouse_type,
+        sku: sku,
+        quantity: Number(quantity),
+        from_time: time_from,
+        to_time: time_to
+    };
+
+    console.log("[REQUEST PAYLOAD]", payload);
+
+    try {
+
+        const response = await fetch("/api/create-supply", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        console.log("[SERVER RESPONSE]", result);
+
+        if (result.success) {
+            alert("Заявка успешно создана");
+        } else {
+            alert("Ошибка: " + JSON.stringify(result));
+        }
+
+    } catch (e) {
+        console.error("[REQUEST ERROR]", e);
+        alert("Ошибка запроса");
+    }
+}
+
+
+// =========================
+// СОБЫТИЯ
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Когда пользователь меняет регион — загружаем кластеры
+    console.log("[INIT] page loaded");
+
+    // регион → кластеры
     document.getElementById("place")
         .addEventListener("change", loadClusters);
 
-    // Когда пользователь выбирает кластер — загружаем склады
-    document.getElementById("clusters")
-        .addEventListener("change", loadWarehouses);
+    // кнопка поиска точек
+    document.querySelector("button[onclick='']")
+        .addEventListener("click", loadPointsToShipSupplies);
 
-    document.getElementById("warehouses")
-        .addEventListener("change", loadPointsToShipSupplies);
+    // лог выбора SKU
+    document.getElementById("products")
+        .addEventListener("change", (e) => {
+            console.log("[SKU SELECTED]", e.target.value);
+        });
 
-    // При загрузке страницы сразу загружаем список товаров
     loadProducts();
 });
+
 
 </script>
 
