@@ -13,9 +13,12 @@ class BdCrossdock:
         CREATE TABLE IF NOT EXISTS requests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             cluster_id INTEGER,
+            cluster_name TEXT,
             warehouse_id INTEGER,
+            warehouse_name TEXT,
             warehouse_type TEXT,
             sku INTEGER,
+            product_name TEXT,
             quantity INTEGER,
             from_time TEXT,
             to_time TEXT,
@@ -33,18 +36,27 @@ class BdCrossdock:
 
         self.cursor.execute("""
         INSERT INTO requests (
-            cluster_id, warehouse_id, warehouse_type,
-            sku, quantity, from_time, to_time,
+            cluster_id, cluster_name,
+            warehouse_id, warehouse_name, warehouse_type,
+            sku, product_name,
+            quantity, from_time, to_time,
             status, error, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             data["cluster_id"],
+            data["cluster_name"],
+
             data["warehouse_id"],
+            data["warehouse_name"],
             data["warehouse_type"],
+
             data["sku"],
+            data["product_name"],
+
             data["quantity"],
             data["from_time"],
             data["to_time"],
+
             "in_progress",
             None,
             datetime.now().isoformat()
@@ -125,15 +137,18 @@ class BdCrossdock:
             result.append({
                 "id": r[0],
                 "cluster_id": r[1],
-                "warehouse_id": r[2],
-                "warehouse_type": r[3],
-                "sku": r[4],
-                "quantity": r[5],
-                "from_time": r[6],
-                "to_time": r[7],
-                "status": r[8],
-                "error": r[9],
-                "created_at": r[10],
+                "cluster_name": r[2],
+                "warehouse_id": r[3],
+                "warehouse_name": r[4],
+                "warehouse_type": r[5],
+                "sku": r[6],
+                "product_name": r[7],
+                "quantity": r[8],
+                "from_time": r[9],
+                "to_time": r[10],
+                "status": r[11],
+                "error": r[12],
+                "created_at": r[13],
             })
 
         return result

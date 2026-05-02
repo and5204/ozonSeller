@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="start write front">
-      <change afterPath="$PROJECT_DIR$/src/cancel_state.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripts/BdCrossdock.py" afterDir="false" />
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="full work crossdock">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/Bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/Bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/BdCrossdock.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/BdCrossdock.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ui/clusters.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/clusters.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -258,7 +256,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777666385035</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="full work crossdock">
+      <option name="closed" value="true" />
+      <created>1777745520750</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1777745520750</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -316,6 +322,7 @@
     <MESSAGE value="bot to crossdock work" />
     <MESSAGE value="bot to crossdock and direct work" />
     <MESSAGE value="start write front" />
-    <option name="LAST_COMMIT_MESSAGE" value="start write front" />
+    <MESSAGE value="full work crossdock" />
+    <option name="LAST_COMMIT_MESSAGE" value="full work crossdock" />
   </component>
 </project>

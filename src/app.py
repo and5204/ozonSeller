@@ -13,9 +13,15 @@ from src.scripts.CreateDraftCrossdock import CreateDraftCrossdock
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 class SupplyRequest(BaseModel):
     cluster_id: int
+    cluster_name: str
+
     warehouse_id: int
+    warehouse_name: str
     warehouse_type: str
+
     sku: int
+    product_name: str
+
     quantity: int
     from_time: str
     to_time: str

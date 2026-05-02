@@ -261,16 +261,15 @@ tr:hover {
 // =========================
 // ГЛОБАЛЬНЫЕ ДАННЫЕ
 // =========================
-let clustersData = [];      // список кластеров
-let pointsData = [];        // список точек отгрузки
-
-// Данные заявки
 let clustersId = null;
+let cluster_name = null;  // добавить
 let time_from = null;
 let time_to = null;
 let warehouse_id = null;
 let warehouse_type = null;
+let warehouse_name = null;  // добавить
 let sku = null;
+let product_name = null;   // добавить
 let quantity = null;
 
 async function loadRequests() {
@@ -290,11 +289,12 @@ async function loadRequests() {
 
         tr.innerHTML = `
             <td>${r.id}</td>
-            <td>${r.cluster_id}</td>
-            <td>${r.warehouse_id}</td>
+
+            <td>${r.cluster_name}</td>
+            <td>${r.warehouse_name}</td>
             <td>${r.from_time}</td>
             <td>${r.to_time}</td>
-            <td>${r.sku}</td>
+            <td>${r.product_name}</td>
             <td>${r.quantity}</td>
             <td class="status-${r.status}">${r.status}</td>
             <td>${r.error || ""}</td>
@@ -432,36 +432,51 @@ function collectFormData() {
 
     console.log("[COLLECT FORM DATA]");
 
-    // === КЛАСТЕР ===
+    // КЛАСТЕР
     const clusterSelect = document.getElementById("clusters");
     const selectedCluster = clusterSelect.options[clusterSelect.selectedIndex];
 
     clustersId = selectedCluster ? Number(selectedCluster.dataset.id) : null;
+    cluster_name = selectedCluster ? selectedCluster.text : null;
 
-    // === ВРЕМЯ ===
-    time_from = document.getElementById("fromTime").value;
-    time_to = document.getElementById("toTime").value;
 
-    // === ТОЧКА ОТГРУЗКИ ===
+    // СКЛАД
     const warehouseSelect = document.getElementById("PointsToShipSupplies");
     const selectedWarehouse = warehouseSelect.options[warehouseSelect.selectedIndex];
 
     warehouse_id = selectedWarehouse ? Number(selectedWarehouse.value) : null;
     warehouse_type = selectedWarehouse?.dataset?.type || null;
+    warehouse_name = selectedWarehouse ? selectedWarehouse.text : null;
 
-    // === SKU ===
-    sku = document.getElementById("products").value;
+
+    // ТОВАР
+    const productSelect = document.getElementById("products");
+    const selectedProduct = productSelect.options[productSelect.selectedIndex];
+
+    sku = selectedProduct.value;
+    product_name = selectedProduct ? selectedProduct.text : null;
+
+    // === ВРЕМЯ ===
+    time_from = document.getElementById("fromTime").value;
+    time_to = document.getElementById("toTime").value;
+
+
+
+
 
     // === КОЛИЧЕСТВО ===
     quantity = document.getElementById("quantity").value;
 
     console.log("[FORM DATA]", {
         clustersId,
+        cluster_name,
         time_from,
         time_to,
         warehouse_id,
         warehouse_type,
+        warehouse_name,
         sku,
+        product_name,
         quantity
     });
 }
@@ -502,9 +517,15 @@ async function createSupplyRequest() {
 
     const payload = {
         cluster_id: clustersId,
+        cluster_name: cluster_name,
+
         warehouse_id: warehouse_id,
+        warehouse_name: warehouse_name,
         warehouse_type: warehouse_type,
+
         sku: sku,
+        product_name: product_name,
+
         quantity: Number(quantity),
         from_time: time_from,
         to_time: time_to
@@ -575,5 +596,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-</body>
+
 </html>
