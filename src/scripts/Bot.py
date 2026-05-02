@@ -1,5 +1,9 @@
 import asyncio
 from datetime import datetime, timedelta
+
+from src.cancel_state import cancel_flags
+
+
 class Bot:
     def __init__(self, draftCrossdock):
         self.draftCrossdock = draftCrossdock
@@ -92,11 +96,14 @@ class Bot:
         return from_in_timezone
 
     async def makeRequestForDeliveryCrossdock(self, macrolocal_cluster_id, drop_off_warehouse_id, drop_off_warehouse_type,
-                                        quantity, sku, from_in_timezone, to_in_timezone):
+                                        quantity, sku, from_in_timezone, to_in_timezone, request_id):
 
         iteration = 0
 
         while True:
+            if cancel_flags.get(request_id):
+                print("[CANCEL] Остановлено пользователем")
+                return {"status": "canceled"}
             iteration += 1
             print(f"\n[LOOP] Итерация: {iteration}")
 
@@ -196,6 +203,9 @@ class Bot:
                 }
             draftInfoExist = True
             while draftInfoExist:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
                 await asyncio.sleep(10)
                 draftInfo = self.draftCrossdock.draftInfo(draftId)
                 print(f"[DRAFT INFO] {draftInfo}")
@@ -266,6 +276,9 @@ class Bot:
 
             timeslot_retry = True
             while timeslot_retry:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
                 await asyncio.sleep(10)
                 timeslot = self.draftCrossdock.timeSlot(
                     from_in_timezone[:10],
@@ -353,6 +366,9 @@ class Bot:
                 timeslot_retry = False
 
             while draftExist:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
 
                 await asyncio.sleep(10)
                 print(f"[SUPPLY] Пытаемся создать supply (draft_id={draftId})")
@@ -416,6 +432,9 @@ class Bot:
                     }
 
                 elif supplyExist:
+                    if cancel_flags.get(request_id):
+                        print("[CANCEL] Остановлено пользователем")
+                        return {"status": "canceled"}
 
                     supplyInfoExist = True
                     while supplyInfoExist:

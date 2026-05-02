@@ -3,105 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <title>Clusters</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input, select {
-            width: 300px;
-            padding: 6px;
-        }
-    </style>
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    color: #2c2c2c;
+}
+
+/* Layout */
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Левая панель (форма) */
+.panel {
+    width: 340px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* Правая панель (таблица) */
+.table-panel {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* Заголовки */
+h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+    display: block;
+}
+
+input, select {
+    width: 100%;
+    padding: 7px 9px;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    background: #fafafa;
+    transition: 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #aab4c3;
+    background: #fff;
+    outline: none;
+}
+
+/* Кнопки */
+button {
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #6c7a89;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:hover {
+    background: #5a6774;
+}
+
+button.cancel {
+    background: #9b5c5c;
+}
+
+button.cancel:hover {
+    background: #7f4a4a;
+}
+
+/* Таблица */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: #f0f2f5;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+td[class^="status-"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+tr:hover {
+    background: #f8f9fb;
+}
+
+/* Статусы (бейджи) */
+.status-in_progress,
+.status-done,
+.status-error,
+.status-canceled {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.status-in_progress {
+    background: #f3f0e7;
+    color: #9a7b4f;
+}
+
+.status-done {
+    background: #e8f3ec;
+    color: #4f8a65;
+}
+
+.status-error {
+    background: #f5e8e8;
+    color: #9a4f4f;
+}
+
+.status-canceled {
+    background: #ececec;
+    color: #777;
+}
+</style>
 </head>
 <body>
 
-<div class="form-group">
-    <label>Регион</label>
-    <select id="place">
-        <option value="">Select region</option>
-        <option value="RUS">Russia</option>
-        <option value="SNG">SNG</option>
-    </select>
+<div class="container">
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
+    <div class="panel">
+
+        <h3>Создание заявки</h3>
+
+        <div class="form-group">
+            <label>Регион</label>
+            <select id="place">
+                <option value="">Select region</option>
+                <option value="RUS">Russia</option>
+                <option value="SNG">SNG</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Кластер</label>
+            <select id="clusters"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Начальное время</label>
+            <input
+                type="text"
+                id="fromTime"
+                placeholder="2026-04-28T12:00:00"
+            >
+
+
+
+        </div>
+
+        <div class="form-group">
+            <label>Конечное время</label>
+            <input
+                type="text"
+                id="toTime"
+                placeholder="2026-04-28T18:00:00"
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Поиск точки</label>
+            <input type="text" id="warehouseSearch">
+            <br><br>
+            <button onclick="">Найти</button>
+        </div>
+
+        <div class="form-group">
+            <label>Точка отгрузки</label>
+            <select id="PointsToShipSupplies"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Товар</label>
+            <select id="products"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Количество</label>
+            <input type="number" id="quantity" min="1">
+        </div>
+
+        <div class="form-group">
+            <button onclick="createSupplyRequest()">
+                Создать заявку
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
+    <div class="table-panel">
+
+        <h3>Заявки</h3>
+
+        <table id="requestsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cluster</th>
+                    <th>Warehouse</th>
+                    <th>from_time</th>
+                    <th>to_time</th>
+                    <th>SKU</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Error</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
 </div>
 
-<div class="form-group">
-    <label>Кластер</label>
-    <select id="clusters">
-        <option value="">Select cluster</option>
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Начальное время</label>
-    <input
-        type="text"
-        id="fromTime"
-        placeholder="2026-04-28T12:00:00"
-    >
-</div>
-
-<div class="form-group">
-    <label>Конечное время</label>
-    <input
-        type="text"
-        id="toTime"
-        placeholder="2026-04-28T18:00:00"
-    >
-</div>
-
-<div class="form-group">
-    <label>Поиск точки отгрузки</label>
-    <input
-        type="text"
-        id="warehouseSearch"
-        placeholder="Введите название точки..."
-    >
-    <button onclick="">
-    искать точку отгрузки
-    </button>
-</div>
-
-<div class="form-group">
-    <label>Точки отгрузки</label>
-    <select id="PointsToShipSupplies">
-        <option value="">Выберите точку</option>
-    </select>
-</div>
-
-
-</div>
-
-<div class="form-group">
-    <label>Товар</label>
-    <select id="products">
-        <option value="">Select product</option>
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Количество товара</label>
-    <input
-        type="number"
-        id="quantity"
-        placeholder="Введите количество"
-        min="1"
-    >
-</div>
-
-<div class="form-group">
-    <button onclick="createSupplyRequest()">
-    Создать заявку на кроссдок
-</button>
-</div>
-
+</body>
 
 <script>
 
@@ -121,7 +273,53 @@ let warehouse_type = null;
 let sku = null;
 let quantity = null;
 
+async function loadRequests() {
 
+    console.log("[LOAD REQUESTS]");
+
+    const response = await fetch("/api/requests");
+    const data = await response.json();
+
+    const tbody = document.querySelector("#requestsTable tbody");
+
+    tbody.innerHTML = "";
+
+    data.forEach(r => {
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.cluster_id}</td>
+            <td>${r.warehouse_id}</td>
+            <td>${r.from_time}</td>
+            <td>${r.to_time}</td>
+            <td>${r.sku}</td>
+            <td>${r.quantity}</td>
+            <td class="status-${r.status}">${r.status}</td>
+            <td>${r.error || ""}</td>
+            <td>
+                ${r.status === "in_progress"
+                    ? `<button class="cancel" onclick="cancelRequest(${r.id})">Отмена</button>`
+                    : ""}
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+async function cancelRequest(id) {
+
+    console.log("[CANCEL REQUEST]", id);
+
+    await fetch(`/api/cancel/${id}`, {
+        method: "POST"
+    });
+
+    alert("Заявка остановлена");
+
+    loadRequests();
+}
 // =========================
 // ЗАГРУЗКА КЛАСТЕРОВ
 // =========================
@@ -362,9 +560,15 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("[SKU SELECTED]", e.target.value);
         });
 
+    // загрузка товаров
     loadProducts();
-});
 
+    // 🔥 ЗАГРУЗКА ЗАЯВОК (первый раз)
+    loadRequests();
+
+    // 🔥 АВТООБНОВЛЕНИЕ КАЖДЫЕ 5 СЕК
+    setInterval(loadRequests, 5000);
+});
 
 </script>
 

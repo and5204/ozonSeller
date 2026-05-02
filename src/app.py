@@ -5,7 +5,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from src.api.OzonApi import OzonApi
+from src.cancel_state import cancel_flags
 from src.config.ConfigManager import ConfigManager
+from src.scripts.BdCrossdock import BdCrossdock
 from src.scripts.Bot import Bot
 from src.scripts.CreateDraftCrossdock import CreateDraftCrossdock
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,6 +32,8 @@ ozon_api = OzonApi(
 )
 create_draft = CreateDraftCrossdock(ozon_api)
 supplyBotCrossdock = Bot(create_draft)
+bdCrossdok = BdCrossdock()
+
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
@@ -74,18 +78,59 @@ async def create_supply_crossdock(request: SupplyRequest):
 
     print("[API] Получен запрос:", request)
 
-    result = await supplyBotCrossdock.makeRequestForDeliveryCrossdock(
-        macrolocal_cluster_id=request.cluster_id,
-        drop_off_warehouse_id=request.warehouse_id,
-        drop_off_warehouse_type=request.warehouse_type,
-        quantity=request.quantity,
-        sku=request.sku,
-        from_in_timezone=request.from_time,
-        to_in_timezone=request.to_time
-    )
+    addInBd = bdCrossdok.add_request(request.dict())
 
-    print("[API] Результат:", result)
+    if not addInBd.get("success"):
+        return addInBd
 
-    return result
+    request_id = addInBd["id"]
+
+    cancel_flags[request_id] = False
+
+    try:
+        result = await supplyBotCrossdock.makeRequestForDeliveryCrossdock(
+            macrolocal_cluster_id=request.cluster_id,
+            drop_off_warehouse_id=request.warehouse_id,
+            drop_off_warehouse_type=request.warehouse_type,
+            quantity=request.quantity,
+            sku=request.sku,
+            from_in_timezone=request.from_time,
+            to_in_timezone=request.to_time,
+            request_id=request_id   # 🔥 передаём
+        )
+
+        print("[API] Результат:", result)
+
+        # === если отменили ===
+        if cancel_flags.get(request_id):
+            bdCrossdok.update_status(request_id, "canceled", "Остановлено")
+            return {"status": "canceled"}
+
+        # === SUCCESS ===
+        if isinstance(result, dict) and result.get("status") == "SUCCESS":
+            bdCrossdok.update_status(request_id, "done", None)
+        else:
+            bdCrossdok.update_status(request_id, "error", str(result))
+
+        return result
+
+    except Exception as e:
+        bdCrossdok.update_status(request_id, "error", str(e))
+        return {"error": str(e)}
+
+    finally:
+        cancel_flags.pop(request_id, None)
+
+@app.post("/api/cancel/{request_id}")
+async def cancel_request(request_id: int):
+
+    cancel_flags[request_id] = True
+
+    bdCrossdok.update_status(request_id, "canceled", "Остановлено пользователем")
+
+    return {"success": True}
+@app.get("/api/requests")
+def get_requests():
+    return bdCrossdok.get_all()
 
 
