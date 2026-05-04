@@ -1,6 +1,8 @@
 import asyncio
 from datetime import datetime, timedelta
 
+from src.cancel_state import cancel_flags
+
 
 class BotDirect:
     def __init__(self, draftDirect):
@@ -50,12 +52,16 @@ class BotDirect:
         quantity,
         sku,
         from_in_timezone,
-        to_in_timezone
+        to_in_timezone,
+        request_id
     ):
 
         iteration = 0
 
         while True:
+            if cancel_flags.get(request_id):
+                print("[CANCEL] Остановлено пользователем")
+                return {"status": "canceled"}
             iteration += 1
             print(f"\n[LOOP] Итерация: {iteration}")
 
@@ -102,6 +108,9 @@ class BotDirect:
             # =========================
 
             while True:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
                 await asyncio.sleep(10)
 
                 info = self.draftDirect.draftInfo(draft_id)
@@ -154,6 +163,9 @@ class BotDirect:
             # =========================
 
             while True:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
                 await asyncio.sleep(10)
 
                 ts = self.draftDirect.timeSlot(
@@ -224,6 +236,9 @@ class BotDirect:
             # =========================
 
             while draftExist:
+                if cancel_flags.get(request_id):
+                    print("[CANCEL] Остановлено пользователем")
+                    return {"status": "canceled"}
                 await asyncio.sleep(10)
 
                 print("[SUPPLY] создаём...")
@@ -261,6 +276,9 @@ class BotDirect:
                         break
                 supplyInfoExist = True
                 while supplyInfoExist:
+                    if cancel_flags.get(request_id):
+                        print("[CANCEL] Остановлено пользователем")
+                        return {"status": "canceled"}
                     await asyncio.sleep(10)
                     supplyInfo = self.draftDirect.supplyInformatin(draft_id)
 
@@ -286,13 +304,13 @@ class BotDirect:
                         reasons = supplyInfo.get("error_reasons", [])
                         print(f"[SUPPLY FAILED] reasons={reasons}")
 
-                        # 🔁 НУЖНЫЙ КЕЙС — просто выходим из цикла
+
                         if "TIMESLOT_NOT_AVAILABLE" in reasons:
                             print("[SUPPLY] Таймслот исчез → выходим из цикла, пробуем заново")
                             supplyInfoExist = False
                             supplyExist = False
-                            break  # <-- ключевое отличие
+                            break
 
-                        # ❌ все остальные ошибки — как раньше
+
                         return supplyInfo
                 print("[RETRY] пробуем снова")

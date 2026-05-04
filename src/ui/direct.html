@@ -3,86 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <title>Clusters</title>
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    color: #2c2c2c;
+}
+
+/* Layout */
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Левая панель (форма) */
+.panel {
+    width: 340px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* Правая панель (таблица) */
+.table-panel {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* Заголовки */
+h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+    display: block;
+}
+
+input, select {
+    width: 100%;
+    padding: 7px 9px;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    background: #fafafa;
+    transition: 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #aab4c3;
+    background: #fff;
+    outline: none;
+}
+
+/* Кнопки */
+button {
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #6c7a89;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:hover {
+    background: #5a6774;
+}
+
+button.cancel {
+    background: #9b5c5c;
+}
+
+button.cancel:hover {
+    background: #7f4a4a;
+}
+
+/* Таблица */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: #f0f2f5;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+td[class^="status-"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+tr:hover {
+    background: #f8f9fb;
+}
+
+/* Статусы (бейджи) */
+.status-in_progress,
+.status-done,
+.status-error,
+.status-canceled {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.status-in_progress {
+    background: #f3f0e7;
+    color: #9a7b4f;
+}
+
+.status-done {
+    background: #e8f3ec;
+    color: #4f8a65;
+}
+
+.status-error {
+    background: #f5e8e8;
+    color: #9a4f4f;
+}
+
+.status-canceled {
+    background: #ececec;
+    color: #777;
+}
+</style>
 </head>
 <body>
-<select id="place">
-    <option value="">Select region</option>
-    <option value="RUS">Russia</option>
-    <option value="SNG">SNG</option>
-</select>
 
-<select id="clusters">
-    <option value="">Select cluster</option>
-</select>
+<div class="container">
 
-<select id="warehouses">
-    <option value="">Склад</option>
-</select>
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
+    <div class="panel">
 
-<select id="PointsToShipSupplies">
-    <option value="">Точки для отгрузки</option>
-</select>
+        <h3>Создание заявки</h3>
 
-<select id="products">
-    <option value="">Select product</option>
-</select>
+        <div class="form-group">
+            <label>Регион</label>
+            <select id="place">
+                <option value="">Select region</option>
+                <option value="RUS">Russia</option>
+                <option value="SNG">SNG</option>
+            </select>
+        </div>
 
+        <div class="form-group">
+            <label>Кластер</label>
+            <select id="clusters"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Начальное время</label>
+            <input
+                type="text"
+                id="fromTime"
+                placeholder="2026-04-28T12:00:00"
+            >
+
+
+
+        </div>
+
+        <div class="form-group">
+            <label>Конечное время</label>
+            <input
+                type="text"
+                id="toTime"
+                placeholder="2026-04-28T18:00:00"
+            >
+        </div>
+
+
+
+        <div class="form-group">
+            <label>склад отгрузки</label>
+            <select id="loadWarehouses"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Товар</label>
+            <select id="products"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Количество</label>
+            <input type="number" id="quantity" min="1">
+        </div>
+
+        <div class="form-group">
+            <button onclick="createSupplyRequest()">
+                Создать заявку
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
+    <div class="table-panel">
+
+        <h3>Заявки</h3>
+
+        <table id="requestsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cluster</th>
+                    <th>Warehouse</th>
+                    <th>from_time</th>
+                    <th>to_time</th>
+                    <th>SKU</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Error</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
 
 <script>
 
-let clustersData = null;
-let clustersId = null;
+
 // =========================
-// Функция загрузки кластеров
+// ГЛОБАЛЬНЫЕ ДАННЫЕ
+// =========================
+let clustersId = null;
+let cluster_name = null;  // добавить
+let time_from = null;
+let time_to = null;
+let warehouse_id = null;
+let warehouse_type = null;
+let warehouse_name = null;  // добавить
+let sku = null;
+let product_name = null;   // добавить
+let quantity = null;
+let clustersData = [];
+
+
+async function loadRequests() {
+
+    console.log("[LOAD REQUESTS]");
+
+    const response = await fetch("/api/requestsDirect");
+    const data = await response.json();
+
+    const tbody = document.querySelector("#requestsTable tbody");
+
+    tbody.innerHTML = "";
+
+    data.forEach(r => {
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${r.id}</td>
+
+            <td>${r.cluster_name}</td>
+            <td>${r.warehouse_name}</td>
+            <td>${r.from_time}</td>
+            <td>${r.to_time}</td>
+            <td>${r.product_name}</td>
+            <td>${r.quantity}</td>
+            <td class="status-${r.status}">${r.status}</td>
+            <td>${r.error || ""}</td>
+            <td>
+                ${r.status === "in_progress"
+                    ? `<button class="cancel" onclick="cancelRequest(${r.id})">Отмена</button>`
+                    : ""}
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+async function cancelRequest(id) {
+
+    console.log("[CANCEL REQUEST]", id);
+
+    await fetch(`/api/cancelDirect/${id}`, {
+        method: "POST"
+    });
+
+    alert("Заявка остановлена");
+
+    loadRequests();
+}
+// =========================
+// ЗАГРУЗКА КЛАСТЕРОВ
 // =========================
 async function loadClusters() {
 
-    // Получаем выбранное значение из выпадающего списка "place"
     const place = document.getElementById("place").value;
-
-    // Если регион не выбран — выходим из функции
     if (!place) return;
 
-    // Отправляем GET-запрос на backend:
-    // /api/clusters?place=RUS или /api/clusters?place=SNG
-    const response = await fetch(`/api/clusters?place=${place}`);
+    console.log("[LOAD CLUSTERS] place =", place);
 
-    // Преобразуем HTTP-ответ в JSON-объект
+    const response = await fetch(`/api/clusters?place=${place}`);
     const data = await response.json();
 
     clustersData = data;
 
-    // Получаем DOM-элемент выпадающего списка кластеров
     const clusterSelect = document.getElementById("clusters");
-
-    // Получаем DOM-элемент выпадающего списка складов
-    const warehouseSelect = document.getElementById("warehouses");
-
-    // Очищаем список кластеров и добавляем placeholder
     clusterSelect.innerHTML = '<option value="">Select cluster</option>';
 
-    // Очищаем список складов (при смене региона)
-    warehouseSelect.innerHTML = '<option value="">Склад</option>';
-
-    // Если в ответе нет массива clusters — выходим
-    if (!data) return;
-
-    // Проходимся по каждому кластеру в массиве
     data.forEach(cluster => {
 
-        // Создаём новый HTML-элемент <option>
         const option = document.createElement("option");
 
-        // Значение option — имя кластера (будет отправлено на backend)
         option.value = cluster.name;
-        clustersId = cluster.id;
 
-        // Текст option — имя кластера (то, что видит пользователь)
-        option.text = cluster.name + " (" + cluster.type + " )";
+        // сохраняем ID
+        option.dataset.id = cluster.macrolocal_cluster_id;
 
-        // Добавляем option в выпадающий список кластеров
+        option.text = `${cluster.name} (${cluster.type})`;
+
         clusterSelect.appendChild(option);
     });
+
+    console.log("[CLUSTERS LOADED]", clustersData);
 }
 
 /* =========================================
@@ -96,7 +363,7 @@ async function loadWarehouses() {
     // Если данные кластеров ещё не загружены — выходим
     if (!clustersData) return;
 
-    const warehouseSelect = document.getElementById("warehouses");
+    const warehouseSelect = document.getElementById("loadWarehouses");
     warehouseSelect.innerHTML = '<option value="">Склад</option>';
 
     // Ищем нужный кластер по имени
@@ -108,114 +375,211 @@ async function loadWarehouses() {
     if (!cluster.warehouses) return;
 
     cluster.warehouses.forEach(wh => {
-        const option = document.createElement("option");
-        option.value = wh.name;
-        option.text = wh.name + " (" + wh.type + ")";
-        warehouseSelect.appendChild(option);
-    });
-}
-/* =========================
-   Функция выбора точек для отгрузки
-   ========================= */
-async function loadPointsToShipSupplies() {
 
-    // Получаем выбранное значение из выпадающего списка "warehouses"
-    const cluster_name = document.getElementById("warehouses").value;
-    console.log(cluster_name)
+    if (wh.type !== "FULL_FILLMENT") return;
 
-    // Если регион не выбран — выходим из функции
+    const option = document.createElement("option");
+    option.value = wh.warehouse_id;
+    option.text = wh.name + " (" + wh.type + ")";
 
-
-    // Отправляем GET-запрос на backend:
-
-    const response = await fetch(`/api/warehouses?cluster_name=${encodeURIComponent(cluster_name)}`);
-
-    // Преобразуем HTTP-ответ в JSON-объект
-    const data = await response.json();
-
-    // Получаем DOM-элемент выпадающего списка PointsToShipSupplies
-    const PointsToShipSuppliesSelect = document.getElementById("PointsToShipSupplies");
-
-
-    // Очищаем список
-    PointsToShipSuppliesSelect.innerHTML = '<option value="">Точки для отгрузки</option>';
-
-
-    if (!data.PointsToShipSupplies) return;
-
-    // Проходимся по каждому кластеру в массиве
-    data.PointsToShipSupplies.forEach(pointsToShipSupplies => {
-
-        // Создаём новый HTML-элемент <option>
-        const option = document.createElement("option");
-
-        // Значение option — имя кластера (будет отправлено на backend)
-        option.value = pointsToShipSupplies.name;
-
-        // Текст option — имя кластера (то, что видит пользователь)
-        option.text = pointsToShipSupplies.name + " (" + pointsToShipSupplies.type + " )";
-
-        // Добавляем option в выпадающий список кластеров
-        PointsToShipSuppliesSelect.appendChild(option);
-    });
+    warehouseSelect.appendChild(option);
+});
 }
 
 
-/* =========================
-   Функция загрузки товаров
-   ========================= */
+// =========================
+// ЗАГРУЗКА ТОВАРОВ
+// =========================
 async function loadProducts() {
 
-    // Отправляем запрос на backend для получения товаров продавца
-    const response = await fetch("/api/products");
+    console.log("[LOAD PRODUCTS]");
 
-    // Преобразуем ответ в JSON
+    const response = await fetch("/api/products");
     const data = await response.json();
 
-    // Получаем DOM-элемент выпадающего списка товаров
     const productSelect = document.getElementById("products");
-
-    // Очищаем список товаров и добавляем placeholder
     productSelect.innerHTML = '<option value="">Select product</option>';
 
-    // Если в ответе нет массива products — выходим
     if (!data.products) return;
 
-    // Проходимся по каждому товару
     data.products.forEach(p => {
 
-        // Создаём элемент <option>
         const option = document.createElement("option");
 
-        // Значение option — product_id
         option.value = p.sku;
+        option.text = `Offer: ${p.offer_id} | SKU: ${p.sku}`;
 
-        // Текст option — информация о товаре
-        option.text = `Offer: ${p.offer_id} | ID: ${p.product_id} | SKU: ${p.sku}`;
-
-        // Добавляем option в список товаров
         productSelect.appendChild(option);
+    });
+
+    console.log("[PRODUCTS LOADED]", data.products);
+}
+
+
+// =========================
+// СБОР ДАННЫХ ФОРМЫ
+// =========================
+function collectFormData() {
+
+    console.log("[COLLECT FORM DATA]");
+
+    // КЛАСТЕР
+    const clusterSelect = document.getElementById("clusters");
+    const selectedCluster = clusterSelect.options[clusterSelect.selectedIndex];
+
+    clustersId = selectedCluster ? Number(selectedCluster.dataset.id) : null;
+    cluster_name = selectedCluster ? selectedCluster.text : null;
+
+
+    // СКЛАД
+    const warehouseSelect = document.getElementById("loadWarehouses");
+    const selectedWarehouse = warehouseSelect.options[warehouseSelect.selectedIndex];
+
+    warehouse_id = selectedWarehouse ? Number(selectedWarehouse.value) : null;
+    warehouse_type = selectedWarehouse?.dataset?.type || "UNKNOWN";
+    warehouse_name = selectedWarehouse ? selectedWarehouse.text : null;
+
+
+    // ТОВАР
+    const productSelect = document.getElementById("products");
+    const selectedProduct = productSelect.options[productSelect.selectedIndex];
+
+    sku = selectedProduct.value;
+    product_name = selectedProduct ? selectedProduct.text : null;
+
+    // === ВРЕМЯ ===
+    time_from = document.getElementById("fromTime").value;
+    time_to = document.getElementById("toTime").value;
+
+
+
+
+
+    // === КОЛИЧЕСТВО ===
+    quantity = document.getElementById("quantity").value;
+
+    console.log("[FORM DATA]", {
+        clustersId,
+        cluster_name,
+        time_from,
+        time_to,
+        warehouse_id,
+        warehouse_type,
+        warehouse_name,
+        sku,
+        product_name,
+        quantity
     });
 }
 
-/* =========================
-   Назначение обработчиков
-   ========================= */
+
+// =========================
+// ВАЛИДАЦИЯ
+// =========================
+function validateForm() {
+
+    if (!clustersId) return "Не выбран кластер";
+    if (!time_from) return "Не указано начальное время";
+    if (!time_to) return "Не указано конечное время";
+    if (!warehouse_id) return "Не выбрана точка отгрузки";
+    if (!sku) return "Не выбран товар";
+    if (!quantity || quantity <= 0) return "Некорректное количество";
+
+    return null;
+}
+
+
+// =========================
+// СОЗДАНИЕ ЗАЯВКИ
+// =========================
+async function createSupplyRequest() {
+
+    console.log("========== CREATE SUPPLY ==========");
+
+    collectFormData();
+
+    const error = validateForm();
+
+    if (error) {
+        console.warn("[VALIDATION ERROR]", error);
+        alert(error);
+        return;
+    }
+
+    const payload = {
+        cluster_id: clustersId,
+        cluster_name: cluster_name,
+
+        warehouse_id: warehouse_id,
+        warehouse_name: warehouse_name,
+        warehouse_type: warehouse_type,
+
+        sku: sku,
+        product_name: product_name,
+
+        quantity: Number(quantity),
+        from_time: time_from,
+        to_time: time_to
+    };
+
+    console.log("[REQUEST PAYLOAD]", payload);
+
+    try {
+
+        const response = await fetch("/api/create-supplyDirect", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        console.log("[SERVER RESPONSE]", result);
+
+        if (result.success) {
+            alert("Заявка успешно создана");
+        } else {
+            alert("Ошибка: " + JSON.stringify(result));
+        }
+
+    } catch (e) {
+        console.error("[REQUEST ERROR]", e);
+        alert("Ошибка запроса");
+    }
+}
+
+
+// =========================
+// СОБЫТИЯ
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Когда пользователь меняет регион — загружаем кластеры
+    console.log("[INIT] page loaded");
+
+    // регион → кластеры
     document.getElementById("place")
         .addEventListener("change", loadClusters);
-
-    // Когда пользователь выбирает кластер — загружаем склады
     document.getElementById("clusters")
-        .addEventListener("change", loadWarehouses);
+            .addEventListener("change", loadWarehouses);
+    // кнопка поиска точек
 
-    document.getElementById("warehouses")
-        .addEventListener("change", loadPointsToShipSupplies);
 
-    // При загрузке страницы сразу загружаем список товаров
+    // лог выбора SKU
+    document.getElementById("products")
+        .addEventListener("change", (e) => {
+            console.log("[SKU SELECTED]", e.target.value);
+        });
+
+    // загрузка товаров
     loadProducts();
+
+    // 🔥 ЗАГРУЗКА ЗАЯВОК (первый раз)
+    loadRequests();
+
+    // 🔥 АВТООБНОВЛЕНИЕ КАЖДЫЕ 5 СЕК
+    setInterval(loadRequests, 5000);
 });
 
 </script>
@@ -223,5 +587,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-</body>
+
 </html>
