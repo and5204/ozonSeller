@@ -65,7 +65,8 @@ class CreateDraftDirect:
             result.append({
                 "PointsToShipSupplies_id": item.get("warehouse_id"),
                 "name": item.get("name"),
-                "type": type
+                "type": type,
+                "address": item.get("address")
             })
 
         return {"PointsToShipSupplies": result}

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск складов DIRECT</title>
+
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    color: #2c2c2c;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.panel {
+    width: 340px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+.table-panel {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 7px 9px;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+button {
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #6c7a89;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:hover {
+    background: #5a6774;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: #f0f2f5;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+    background: #f8f9fb;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
+    <div class="panel">
+
+        <h3>Поиск склада</h3>
+
+        <div class="form-group">
+            <label>Введите название склада</label>
+            <input type="text" id="searchInput" placeholder="Например: ХОРУГВИНО">
+        </div>
+
+        <div class="form-group">
+            <button id="searchBtn">Найти</button>
+        </div>
+
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
+    <div class="table-panel">
+
+        <h3>Результаты</h3>
+
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Адрес</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+// =========================
+// ПОИСК СКЛАДОВ
+// =========================
+async function searchWarehouses() {
+
+    const query = document.getElementById("searchInput").value;
+
+    if (!query) {
+        alert("Введите название склада");
+        return;
+    }
+
+    console.log("[SEARCH]", query);
+
+    const response = await fetch(`/api/warehousesDirect?cluster_name=${encodeURIComponent(query)}`);
+    const data = await response.json();
+
+    const tbody = document.querySelector("#resultTable tbody");
+    tbody.innerHTML = "";
+
+    const list = data.PointsToShipSupplies || [];
+
+    if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="4">Ничего не найдено</td></tr>`;
+        return;
+    }
+
+    list.forEach(w => {
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${w.PointsToShipSupplies_id}</td>
+            <td>${w.name}</td>
+            <td>${w.type}</td>
+            <td>${w.address}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+
+    console.log("[RESULT]", list);
+}
+
+// =========================
+// СОБЫТИЯ
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("searchBtn")
+        .addEventListener("click", searchWarehouses);
+
+    // Enter тоже работает
+    document.getElementById("searchInput")
+        .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") searchWarehouses();
+        });
+
+});
+
+</script>
+
+</html>

@@ -87,7 +87,7 @@ class OzonApi:
 
     def searchForPointsToShipSuppliesDIRECT(self, search):  # https://docs.ozon.ru/api/seller/?__rr=3#operation/SupplyDraftAPI_DraftGetWarehouseFboList      Используйте метод, чтобы найти точки отгрузки для прямых поставок.
         url = f"{self.base_url}/v1/warehouse/fbo/list"
-        payload = {"filter_by_supply_type": ["CREATE_TYPE_DIRECT"],
+        payload = {"filter_by_supply_type": ["CREATE_TYPE_CROSSDOCK"],
                    "search": str(search)}
         resp = requests.post(url, headers=self.headers, json=payload)
         return resp.json()

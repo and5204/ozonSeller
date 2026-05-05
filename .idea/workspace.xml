@@ -4,12 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="full work crossdock">
-      <change afterPath="$PROJECT_DIR$/src/scripts/BdDirect.py" afterDir="false" />
+    <list default="true" id="4dc8819b-1223-437a-a9dd-eb88f51da56f" name="Changes" comment="full work crossdock and direct">
+      <change afterPath="$PROJECT_DIR$/src/ui/help.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ui/searchWarehouse.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/OzonApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OzonApi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scripts/BotDirect.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/BotDirect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ui/direct.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/direct.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripts/CreateDraftDirect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +21,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -273,7 +275,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777756665262</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="full work crossdock and direct">
+      <option name="closed" value="true" />
+      <created>1777929123737</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1777929123737</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -332,6 +342,7 @@
     <MESSAGE value="bot to crossdock and direct work" />
     <MESSAGE value="start write front" />
     <MESSAGE value="full work crossdock" />
-    <option name="LAST_COMMIT_MESSAGE" value="full work crossdock" />
+    <MESSAGE value="full work crossdock and direct" />
+    <option name="LAST_COMMIT_MESSAGE" value="full work crossdock and direct" />
   </component>
 </project>

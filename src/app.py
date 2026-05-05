@@ -68,8 +68,18 @@ def direct_page(request: Request):
         "direct.html",
         {"request": request}
     )
-
-
+@app.get("/searchWarehouse", response_class=HTMLResponse)
+def clusters_page(request: Request):
+    return templates.TemplateResponse(
+        "searchWarehouse.html",
+        {"request": request}
+    )
+@app.get("/help", response_class=HTMLResponse)
+def clusters_page(request: Request):
+    return templates.TemplateResponse(
+        "/help.html",
+        {"request": request}
+    )
 @app.get("/api/clusters")
 def get_clusters(place: str):
     """
